@@ -1,4 +1,5 @@
 const STORAGE_KEY = "relief-notes:v1";
+const NOTE_META_PREFIX = "relief-note:";
 
 const prompts = [
   "先写一句现在脑子里最吵的声音。",
@@ -148,6 +149,7 @@ function notesToMarkdown(exportedNotes) {
   }
 
   exportedNotes.forEach((note) => {
+    lines.push(`<!-- ${NOTE_META_PREFIX}${JSON.stringify(getNoteExportMeta(note))} -->`);
     lines.push(`## ${formatTime(note.createdAt)} · ${note.label || categories[note.category] || "碎片"}`);
     lines.push("");
     if (note.doodle) {
@@ -159,6 +161,16 @@ function notesToMarkdown(exportedNotes) {
   });
 
   return lines.join("\n").trimEnd() + "\n";
+}
+
+function getNoteExportMeta(note) {
+  return {
+    id: note.id,
+    category: note.category,
+    label: note.label || categories[note.category] || "碎片",
+    createdAt: note.createdAt,
+    updatedAt: note.updatedAt
+  };
 }
 
 function exportNotes() {
@@ -178,7 +190,8 @@ function importNotesFromFile(file) {
   const reader = new FileReader();
   reader.onload = () => {
     try {
-      const importedNotes = JSON.parse(reader.result);
+      const rawText = String(reader.result || "");
+      const importedNotes = isMarkdownBackup(file, rawText) ? markdownToNotes(rawText) : JSON.parse(rawText);
       if (!Array.isArray(importedNotes)) {
         saveState.textContent = "这份备份读不了";
         return;
@@ -192,6 +205,66 @@ function importNotesFromFile(file) {
     }
   };
   reader.readAsText(file);
+}
+
+function isMarkdownBackup(file, rawText) {
+  return /\.md$/i.test(file.name || "") || rawText.trimStart().startsWith("# 今天写点啥导出");
+}
+
+function markdownToNotes(markdown) {
+  const blocks = markdown
+    .split(new RegExp(`(?=<!--\\s*${NOTE_META_PREFIX})`, "g"))
+    .filter((block) => new RegExp(`^<!--\\s*${NOTE_META_PREFIX}`).test(block.trim()));
+
+  if (blocks.length > 0) {
+    return blocks.map(markdownBlockToNote).filter(Boolean);
+  }
+
+  return markdown
+    .split(/^## /m)
+    .slice(1)
+    .map((section) => markdownSectionToNote(`## ${section}`, {}))
+    .filter(Boolean);
+}
+
+function markdownBlockToNote(block) {
+  const metaMatch = block.match(/<!--\s*relief-note:(.*?)\s*-->/s);
+  if (!metaMatch) return null;
+
+  try {
+    const meta = JSON.parse(metaMatch[1]);
+    return markdownSectionToNote(block.replace(metaMatch[0], "").trim(), meta);
+  } catch {
+    return null;
+  }
+}
+
+function markdownSectionToNote(section, meta) {
+  const lines = section.split(/\r?\n/);
+  const heading = lines.find((line) => line.startsWith("## "));
+  const label = meta.label || heading?.split("·").pop()?.trim() || "碎片";
+  const category = meta.category || getCategoryByLabel(label);
+  const bodyLines = lines.filter((line) => line !== heading);
+  const doodleLine = bodyLines.find((line) => line.startsWith("![涂鸦]("));
+  const doodle = doodleLine?.match(/^!\[涂鸦\]\((.*)\)$/)?.[1] || "";
+  const content = bodyLines
+    .filter((line) => line.trim() && line !== doodleLine)
+    .join("\n")
+    .trim();
+
+  return {
+    id: meta.id || crypto.randomUUID(),
+    content: content || "一张没有解释的涂鸦",
+    doodle,
+    category,
+    label: categories[category] || label,
+    createdAt: meta.createdAt || new Date().toISOString(),
+    ...(meta.updatedAt ? { updatedAt: meta.updatedAt } : {})
+  };
+}
+
+function getCategoryByLabel(label) {
+  return Object.entries(categories).find(([, value]) => value === label)?.[0] || "mess";
 }
 
 function classify(text) {

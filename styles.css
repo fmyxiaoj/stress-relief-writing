@@ -678,6 +678,10 @@ button {
 }
 
 @media (max-width: 860px) {
+  body {
+    padding-bottom: 112px;
+  }
+
   .app-shell {
     grid-template-columns: 1fr;
   }
@@ -688,7 +692,9 @@ button {
   }
 
   .stage {
-    padding: 16px;
+    padding: 16px 16px 112px;
+    overflow: visible;
+    backdrop-filter: none;
   }
 
   .prompt-strip,
@@ -716,6 +722,20 @@ button {
 
   .release-space {
     min-height: 430px;
+  }
+
+  .write-tools {
+    position: fixed;
+    right: 16px;
+    bottom: 0;
+    left: 16px;
+    z-index: 4;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px 8px 0 0;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 -12px 34px rgba(30, 48, 80, 0.14);
+    backdrop-filter: blur(18px);
   }
 
   .write-tools span {
