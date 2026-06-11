@@ -2,139 +2,34 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="今天写点啥：睡前随便写几个字的深色解压写作页，内容只保存在本机。"
+    />
     <title>今天写点啥</title>
-    <link rel="stylesheet" href="styles.css?v=20260605" />
+    <link rel="stylesheet" href="styles.css?v=20260611" />
   </head>
-  <body class="notebook-collapsed">
-    <main class="app-shell">
-      <section class="stage" aria-label="解压写作区">
-        <div class="ambient ambient-one"></div>
-        <div class="ambient ambient-two"></div>
+  <body>
+    <main id="nightWriter" class="night-writer" aria-label="睡前写作区">
+      <div class="nw-glow" aria-hidden="true"></div>
+      <div class="nw-vignette" aria-hidden="true"></div>
+      <div id="keywordLayer" class="nw-keyword-layer" aria-label="关键词星点"></div>
 
-        <header class="topbar">
-          <button class="icon-button" id="newNoteBtn" type="button" title="新建闪记" aria-label="新建闪记">
-            +
-          </button>
-          <div class="brand">
-            <span>今天写点啥</span>
-            <small id="saveState">本地保存中</small>
-          </div>
-          <div class="top-actions">
-            <button class="icon-button" id="notebookBtn" type="button" title="打开盒子" aria-label="打开盒子">
-              □
-            </button>
-            <button class="icon-button" id="focusBtn" type="button" title="沉浸模式" aria-label="沉浸模式">
-              ◐
-            </button>
-          </div>
-        </header>
+      <textarea
+        id="writingInput"
+        class="nw-textarea"
+        aria-label="今晚想写点什么"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        placeholder="今晚想写点什么…"
+      ></textarea>
 
-        <div class="prompt-strip" aria-live="polite">
-          <button class="soft-button" id="promptBtn" type="button">给我一个开头</button>
-          <p id="promptText">先写一句现在脑子里最吵的声音。</p>
-        </div>
-
-        <div class="release-tabs" aria-label="释放方式">
-          <button class="release-option active" data-release-mode="write" type="button">写字</button>
-          <button class="release-option" data-release-mode="doodle" type="button">涂鸦</button>
-        </div>
-
-        <div class="release-space">
-          <textarea
-            id="noteInput"
-            class="note-input"
-            placeholder="不用写完整。一个词、一句话、一串数字，都算。"
-            spellcheck="false"
-          ></textarea>
-          <canvas id="doodleCanvas" class="doodle-canvas hidden" aria-label="随手涂鸦画布"></canvas>
-        </div>
-
-        <div class="doodle-tools hidden" id="doodleTools" aria-label="涂鸦工具">
-          <button class="color-swatch active" data-color="#20242b" type="button" title="墨色" aria-label="墨色"></button>
-          <button class="color-swatch mint" data-color="#1e9d92" type="button" title="薄荷" aria-label="薄荷"></button>
-          <button class="color-swatch coral" data-color="#d85855" type="button" title="珊瑚" aria-label="珊瑚"></button>
-          <button class="eraser-button" id="eraserBtn" type="button" title="橡皮" aria-label="橡皮">⌫</button>
-          <button class="soft-button ghost" id="clearDoodleBtn" type="button">抹掉涂鸦</button>
-        </div>
-
-        <div class="box-picker" aria-label="保存到哪个盒子">
-          <button class="box-option active" data-category="auto" type="button">自动</button>
-          <button class="box-option" data-category="idea" type="button">灵感</button>
-          <button class="box-option" data-category="feeling" type="button">心情</button>
-          <button class="box-option" data-category="mess" type="button">碎片</button>
-        </div>
-
-        <section class="ai-cue hidden" id="aiCue" aria-live="polite" aria-label="灵感回声">
-          <div>
-            <span>灵感回声</span>
-            <p id="aiCueText">停一下，我会接住你的上下文。</p>
-          </div>
-          <div class="ai-cue-actions">
-            <button class="soft-button" id="appendCueBtn" type="button">接一句</button>
-            <button class="soft-button ghost" id="refreshCueBtn" type="button">换一句</button>
-          </div>
-        </section>
-
-        <footer class="write-tools">
-          <button class="soft-button" id="saveBtn" type="button">收进盒子</button>
-          <button class="soft-button ghost" id="clearBtn" type="button">揉掉重来</button>
-          <span id="noteMeta">0 字 · 未分类</span>
-        </footer>
-      </section>
-
-      <aside class="notebook" aria-label="本地笔记盒子">
-        <div class="notebook-head">
-          <span>本地盒子</span>
-          <button class="icon-button small" id="closeNotebookBtn" type="button" title="关闭盒子" aria-label="关闭盒子">
-            ×
-          </button>
-        </div>
-
-        <p class="privacy-note">内容只保存在本机浏览器。换设备或清缓存前，先导出一份。</p>
-        <div class="backup-tools" aria-label="本地备份">
-          <button class="soft-button" id="exportBtn" type="button">导出</button>
-          <button class="soft-button ghost" id="importBtn" type="button">导入</button>
-          <input id="importFileInput" type="file" accept="application/json,.json,text/markdown,.md" hidden />
-        </div>
-
-        <div class="search-card">
-          <label for="searchInput">找回一点线索</label>
-          <input id="searchInput" type="search" placeholder="搜关键词、心情、片段" />
-        </div>
-
-        <div class="stats">
-          <div>
-            <strong id="noteCount">0</strong>
-            <span>次接住</span>
-          </div>
-          <div>
-            <strong id="streakCount">松弛</strong>
-            <span>今日主调</span>
-          </div>
-        </div>
-
-        <section class="daily-insight" aria-label="今日沉淀">
-          <div class="daily-insight-head">
-            <span>今日沉淀</span>
-            <small id="insightFocus">等待输入</small>
-          </div>
-          <p id="insightSummary">写几条后，我会帮你把今天反复出现的东西捞出来。</p>
-          <div class="keyword-row" id="insightKeywords"></div>
-          <p class="next-step" id="insightNext">先写一句，不急着总结。</p>
-        </section>
-
-        <div class="mode-tabs" role="tablist" aria-label="筛选">
-          <button class="tab active" data-filter="all" type="button">全部</button>
-          <button class="tab" data-filter="idea" type="button">灵感</button>
-          <button class="tab" data-filter="feeling" type="button">心情</button>
-          <button class="tab" data-filter="mess" type="button">碎片</button>
-        </div>
-
-        <div class="notes-list" id="notesList" aria-live="polite"></div>
-      </aside>
+      <div id="goodnightSignal" class="nw-goodnight" aria-hidden="true">晚安</div>
+      <div id="saveStatus" class="sr-only" aria-live="polite">内容只保存在本机</div>
     </main>
 
-    <script src="app.js?v=20260605"></script>
+    <script src="app.js?v=20260611"></script>
   </body>
 </html>
