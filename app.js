@@ -481,6 +481,44 @@ function applyDailyAccent(date = new Date()) {
   writer.style.setProperty("--end-b", dailyAccent.end[2]);
 }
 
+function getKeyboardBottomInset() {
+  const viewport = window.visualViewport;
+  if (!viewport) {
+    return 0;
+  }
+
+  const layoutHeight = window.innerHeight || document.documentElement?.clientHeight || viewport.height;
+  const rawInset = layoutHeight - viewport.height - viewport.offsetTop;
+  const maxInset = Math.round(layoutHeight * 0.52);
+  return Math.min(Math.max(0, Math.round(rawInset)), maxInset);
+}
+
+function updateViewportInsets() {
+  writer.style.setProperty("--keyboard-bottom", `${getKeyboardBottomInset()}px`);
+}
+
+function scheduleViewportInsetUpdate() {
+  if (typeof window.requestAnimationFrame === "function") {
+    window.requestAnimationFrame(updateViewportInsets);
+    return;
+  }
+
+  window.setTimeout(updateViewportInsets, 0);
+}
+
+function bindViewportInsetUpdates() {
+  updateViewportInsets();
+  window.addEventListener("resize", scheduleViewportInsetUpdate);
+  window.addEventListener("orientationchange", scheduleViewportInsetUpdate);
+  input.addEventListener("focus", scheduleViewportInsetUpdate);
+  input.addEventListener("blur", scheduleViewportInsetUpdate);
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", scheduleViewportInsetUpdate);
+    window.visualViewport.addEventListener("scroll", scheduleViewportInsetUpdate);
+  }
+}
+
 function getSeason(date = new Date()) {
   const month = date.getMonth() + 1;
   if (month >= 3 && month <= 5) return "spring";
@@ -797,6 +835,7 @@ function scheduleSave() {
 }
 
 function showGoodnight() {
+  updateViewportInsets();
   window.clearTimeout(goodnightTimer);
   goodnightSignal.classList.remove("visible");
   void goodnightSignal.offsetWidth;
@@ -819,6 +858,7 @@ function focusWriting() {
 }
 
 applyDailyAccent();
+bindViewportInsetUpdates();
 keywords = loadKeywords();
 renderKeywords();
 input.value = loadEntry();
