@@ -6,6 +6,9 @@
   --glow-alpha: 0;
   --text-glow: 0;
   --vignette-alpha: 0;
+  --end-r: 20;
+  --end-g: 11;
+  --end-b: 9;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
@@ -35,15 +38,21 @@ textarea {
   overflow: hidden;
   background:
     radial-gradient(ellipse 72% 62% at 50% 54%, rgba(255, 145, 45, var(--glow-alpha)) 0%, transparent 100%),
-    linear-gradient(145deg, rgb(var(--bg-r), var(--bg-g), var(--bg-b)) 0%, #140c09 125%);
+    linear-gradient(
+      145deg,
+      rgb(var(--bg-r), var(--bg-g), var(--bg-b)) 0%,
+      rgb(var(--end-r), var(--end-g), var(--end-b)) 125%
+    );
   cursor: text;
   transition: background 2600ms ease;
+  animation: night-entry 900ms ease both;
   isolation: isolate;
 }
 
 .night-writer::before {
   position: absolute;
   inset: -18%;
+  z-index: 0;
   content: "";
   pointer-events: none;
   background-image:
@@ -52,6 +61,21 @@ textarea {
     radial-gradient(circle at 84% 74%, rgba(92, 108, 152, 0.12) 0 1px, transparent 1.5px),
     radial-gradient(circle at 28% 82%, rgba(215, 182, 110, 0.08) 0 1px, transparent 1.5px);
   opacity: 0.72;
+}
+
+.night-writer::after {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  content: "";
+  pointer-events: none;
+  background: rgba(2, 3, 8, 0.42);
+  opacity: 0;
+  transition: opacity 360ms ease;
+}
+
+.night-writer.history-open::after {
+  opacity: 1;
 }
 
 .nw-glow,
@@ -79,6 +103,7 @@ textarea {
   inset: 0;
   z-index: 20;
   pointer-events: none;
+  transition: opacity 360ms ease;
 }
 
 .nw-keyword {
@@ -142,6 +167,15 @@ textarea {
   letter-spacing: 0.04em;
   text-shadow: 0 0 calc(4px + var(--text-glow) * 16px) rgba(255, 185, 80, calc(var(--text-glow) * 0.28));
   scrollbar-width: none;
+  transition:
+    opacity 360ms ease,
+    filter 360ms ease;
+}
+
+.night-writer.history-open .nw-textarea,
+.night-writer.history-open .nw-keyword-layer {
+  opacity: 0.18;
+  filter: blur(0.6px);
 }
 
 .nw-textarea::-webkit-scrollbar {
@@ -150,6 +184,192 @@ textarea {
 
 .nw-textarea::placeholder {
   color: rgba(85, 100, 140, 0.42);
+}
+
+.nw-history-dot {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top, 0px));
+  right: max(12px, env(safe-area-inset-right, 0px));
+  z-index: 65;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.58;
+  transition:
+    opacity 900ms ease,
+    transform 900ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nw-history-dot::after {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  content: "";
+  background: rgba(112, 127, 168, 0.52);
+  box-shadow: 0 0 16px rgba(112, 127, 168, 0.2);
+}
+
+.nw-history-dot:hover,
+.nw-history-dot:focus-visible,
+.nw-history-dot[aria-expanded="true"] {
+  outline: none;
+  opacity: 1;
+  transform: scale(1.06);
+}
+
+.nw-history-dot:hover::after,
+.nw-history-dot:focus-visible::after,
+.nw-history-dot[aria-expanded="true"]::after {
+  background: rgba(210, 178, 112, 0.78);
+  box-shadow:
+    0 0 14px rgba(255, 195, 90, 0.3),
+    0 0 28px rgba(255, 145, 45, 0.12);
+}
+
+.nw-history-panel {
+  position: absolute;
+  top: max(52px, calc(env(safe-area-inset-top, 0px) + 44px));
+  right: max(14px, env(safe-area-inset-right, 0px));
+  z-index: 60;
+  width: min(340px, calc(100vw - 28px));
+  max-height: min(560px, calc(100dvh - 86px - var(--safe-bottom)));
+  padding: 18px 18px 16px;
+  overflow: hidden;
+  border: 1px solid rgba(125, 137, 174, 0.16);
+  border-radius: 8px;
+  background: rgba(6, 8, 15, 0.96);
+  backdrop-filter: blur(18px);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  -webkit-backdrop-filter: blur(18px);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, -8px, 0);
+  transition:
+    opacity 320ms ease,
+    transform 420ms ease,
+    visibility 320ms ease;
+  visibility: hidden;
+}
+
+.nw-history-panel.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0);
+  visibility: visible;
+}
+
+.nw-history-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.nw-history-top h2 {
+  margin: 0;
+  color: rgba(197, 178, 132, 0.84);
+  font-family: "Songti SC", "STSong", Georgia, serif;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+}
+
+.nw-history-close {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.62;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nw-history-close::before,
+.nw-history-close::after {
+  position: absolute;
+  top: 14px;
+  left: 8px;
+  width: 14px;
+  height: 1px;
+  content: "";
+  background: rgba(132, 145, 181, 0.76);
+}
+
+.nw-history-close::before {
+  transform: rotate(45deg);
+}
+
+.nw-history-close::after {
+  transform: rotate(-45deg);
+}
+
+.nw-history-close:hover,
+.nw-history-close:focus-visible {
+  outline: none;
+  opacity: 1;
+}
+
+.nw-history-list {
+  display: grid;
+  gap: 10px;
+  max-height: min(470px, calc(100dvh - 166px - var(--safe-bottom)));
+  overflow: auto;
+  padding-right: 2px;
+  scrollbar-width: none;
+}
+
+.nw-history-list::-webkit-scrollbar {
+  display: none;
+}
+
+.nw-history-item {
+  display: grid;
+  gap: 7px;
+  padding: 0 0 12px;
+  border-bottom: 1px solid rgba(116, 127, 160, 0.11);
+}
+
+.nw-history-item:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.nw-history-date {
+  color: rgba(112, 127, 168, 0.86);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+.nw-history-text {
+  display: -webkit-box;
+  overflow: hidden;
+  color: rgba(192, 175, 135, 0.88);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  line-height: 1.78;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.nw-history-empty {
+  margin: 14px 0 4px;
+  color: rgba(125, 137, 174, 0.7);
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  line-height: 1.8;
 }
 
 .nw-goodnight {
@@ -192,6 +412,16 @@ textarea {
   }
 }
 
+@keyframes night-entry {
+  0% {
+    filter: brightness(0.86) saturate(0.96);
+  }
+
+  100% {
+    filter: brightness(1) saturate(1);
+  }
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -213,5 +443,12 @@ textarea {
   .nw-textarea {
     padding-right: 30px;
     padding-left: 30px;
+  }
+
+  .nw-history-panel {
+    top: 48px;
+    right: 12px;
+    left: 12px;
+    width: auto;
   }
 }

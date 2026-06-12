@@ -8,7 +8,7 @@
       content="今天写点啥：睡前随便写几个字的深色解压写作页，内容只保存在本机。"
     />
     <title>今天写点啥</title>
-    <link rel="stylesheet" href="styles.css?v=20260611" />
+    <link rel="stylesheet" href="styles.css?v=20260612-mvp" />
   </head>
   <body>
     <main id="nightWriter" class="night-writer" aria-label="睡前写作区">
@@ -26,10 +26,27 @@
         placeholder="今晚想写点什么…"
       ></textarea>
 
+      <button
+        id="historyToggle"
+        class="nw-history-dot"
+        type="button"
+        aria-label="查看过去 7 天"
+        aria-expanded="false"
+        aria-controls="historyPanel"
+      ></button>
+
+      <section id="historyPanel" class="nw-history-panel" aria-label="过去 7 天" aria-hidden="true">
+        <div class="nw-history-top">
+          <h2>过去 7 天</h2>
+          <button id="historyClose" class="nw-history-close" type="button" aria-label="关闭历史"></button>
+        </div>
+        <div id="historyList" class="nw-history-list"></div>
+      </section>
+
       <div id="goodnightSignal" class="nw-goodnight" aria-hidden="true">晚安</div>
       <div id="saveStatus" class="sr-only" aria-live="polite">内容只保存在本机</div>
     </main>
 
-    <script src="app.js?v=20260611"></script>
+    <script src="app.js?v=20260612-mvp"></script>
   </body>
 </html>
