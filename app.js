@@ -425,14 +425,17 @@ const goodnightSignal = document.querySelector("#goodnightSignal");
 const saveStatus = document.querySelector("#saveStatus");
 const historyToggle = document.querySelector("#historyToggle");
 const historyPanel = document.querySelector("#historyPanel");
+const historyTitle = document.querySelector("#historyTitle");
 const historyList = document.querySelector("#historyList");
+const historyDetail = document.querySelector("#historyDetail");
+const historyDetailDate = document.querySelector("#historyDetailDate");
+const historyDetailText = document.querySelector("#historyDetailText");
+const historyBack = document.querySelector("#historyBack");
 const historyClose = document.querySelector("#historyClose");
 
 let keywords = [];
 let dailyAccent = getDailyAccent();
 let saveTimer;
-let goodnightTimer;
-let goodnightShownForCurrentCompletion = false;
 
 function getEntryDate(date = new Date()) {
   const pad = (value) => String(value).padStart(2, "0");
@@ -628,13 +631,12 @@ function setVisualState(text) {
 
   updateKeywordState(text);
 
-  if (glow >= 0.88 && !goodnightShownForCurrentCompletion) {
+  if (glow >= 0.88) {
     showGoodnight();
-    goodnightShownForCurrentCompletion = true;
   }
 
   if (glow < 0.82) {
-    goodnightShownForCurrentCompletion = false;
+    hideGoodnight();
   }
 }
 
@@ -757,8 +759,11 @@ function getHistoryPreview(text) {
 }
 
 function createHistoryItem(entry) {
-  const item = document.createElement("article");
+  const item = document.createElement("button");
+  item.type = "button";
   item.className = "nw-history-item";
+  item.dataset.historyDate = entry.date;
+  item.setAttribute("aria-label", `查看${formatHistoryDate(entry.date)}的完整记录`);
 
   const date = document.createElement("div");
   date.className = "nw-history-date";
@@ -769,6 +774,7 @@ function createHistoryItem(entry) {
   text.textContent = getHistoryPreview(entry.text);
 
   item.append(date, text);
+  item.addEventListener("click", () => showHistoryDetail(entry));
 
   return item;
 }
@@ -790,6 +796,27 @@ function renderHistory() {
   });
 }
 
+function showHistoryList() {
+  historyPanel.classList.remove("detail-open");
+  historyTitle.textContent = "过去 7 天";
+  historyBack.hidden = true;
+  historyList.hidden = false;
+  historyDetail.hidden = true;
+  historyDetail.setAttribute("aria-hidden", "true");
+}
+
+function showHistoryDetail(entry) {
+  const text = typeof entry.text === "string" ? entry.text.trim() : "";
+  historyPanel.classList.add("detail-open");
+  historyTitle.textContent = "完整记录";
+  historyBack.hidden = false;
+  historyList.hidden = true;
+  historyDetail.hidden = false;
+  historyDetail.setAttribute("aria-hidden", "false");
+  historyDetailDate.textContent = formatHistoryDate(entry.date);
+  historyDetailText.textContent = text;
+}
+
 function isHistoryOpen() {
   return historyPanel.classList.contains("open");
 }
@@ -801,6 +828,7 @@ function setHistoryOpen(open) {
   historyToggle.setAttribute("aria-expanded", String(open));
 
   if (open) {
+    showHistoryList();
     renderHistory();
   }
 }
@@ -836,13 +864,11 @@ function scheduleSave() {
 
 function showGoodnight() {
   updateViewportInsets();
-  window.clearTimeout(goodnightTimer);
-  goodnightSignal.classList.remove("visible");
-  void goodnightSignal.offsetWidth;
   goodnightSignal.classList.add("visible");
-  goodnightTimer = window.setTimeout(() => {
-    goodnightSignal.classList.remove("visible");
-  }, 5400);
+}
+
+function hideGoodnight() {
+  goodnightSignal.classList.remove("visible");
 }
 
 function handleInput() {
@@ -876,6 +902,10 @@ historyClose.addEventListener("click", (event) => {
   event.stopPropagation();
   setHistoryOpen(false);
   focusWriting();
+});
+historyBack.addEventListener("click", (event) => {
+  event.stopPropagation();
+  showHistoryList();
 });
 historyPanel.addEventListener("click", (event) => {
   event.stopPropagation();

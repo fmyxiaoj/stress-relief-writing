@@ -8,7 +8,7 @@
       content="今天写点啥：睡前随便写几个字的深色解压写作页，内容只保存在本机。"
     />
     <title>今天写点啥</title>
-    <link rel="stylesheet" href="styles.css?v=20260612-keyboard" />
+    <link rel="stylesheet" href="styles.css?v=20260613-history" />
   </head>
   <body>
     <main id="nightWriter" class="night-writer" aria-label="睡前写作区">
@@ -37,16 +37,21 @@
 
       <section id="historyPanel" class="nw-history-panel" aria-label="过去 7 天" aria-hidden="true">
         <div class="nw-history-top">
-          <h2>过去 7 天</h2>
+          <button id="historyBack" class="nw-history-back" type="button" aria-label="返回历史列表" hidden></button>
+          <h2 id="historyTitle">过去 7 天</h2>
           <button id="historyClose" class="nw-history-close" type="button" aria-label="关闭历史"></button>
         </div>
         <div id="historyList" class="nw-history-list"></div>
+        <article id="historyDetail" class="nw-history-detail" aria-hidden="true" hidden>
+          <div id="historyDetailDate" class="nw-history-detail-date"></div>
+          <div id="historyDetailText" class="nw-history-detail-text"></div>
+        </article>
       </section>
 
       <div id="goodnightSignal" class="nw-goodnight" aria-hidden="true">晚安</div>
       <div id="saveStatus" class="sr-only" aria-live="polite">内容只保存在本机</div>
     </main>
 
-    <script src="app.js?v=20260612-keyboard"></script>
+    <script src="app.js?v=20260613-history"></script>
   </body>
 </html>
