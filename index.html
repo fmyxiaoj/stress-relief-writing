@@ -8,13 +8,14 @@
       content="今夜写点啥：睡前随便写几个字的深色解压写作页，内容只保存在本机。"
     />
     <title>今夜写点啥</title>
-    <link rel="stylesheet" href="styles.css?v=20260615-night-polish" />
+    <link rel="stylesheet" href="styles.css?v=20260615-mvp-launch" />
   </head>
   <body>
     <main id="nightWriter" class="night-writer" aria-label="睡前写作区">
       <div class="nw-glow" aria-hidden="true"></div>
       <div class="nw-vignette" aria-hidden="true"></div>
       <div id="keywordLayer" class="nw-keyword-layer" aria-label="关键词星点"></div>
+      <p id="introNote" class="nw-intro-note">写下今晚脑子里放不下的东西，内容只保存在这台设备。</p>
 
       <textarea
         id="writingInput"
@@ -48,12 +49,14 @@
           <div id="historyDetailDate" class="nw-history-detail-date"></div>
           <div id="historyDetailText" class="nw-history-detail-text"></div>
         </article>
+        <p id="privacyNote" class="nw-privacy-note">不登录，不上传，只保存在这台设备。清理浏览器数据会丢失。</p>
       </section>
 
       <div id="goodnightSignal" class="nw-goodnight" aria-hidden="true">晚安</div>
+      <button id="clearTonight" class="nw-clear-tonight" type="button">清空今晚</button>
       <div id="saveStatus" class="nw-save-status" aria-live="polite">内容只保存在本机</div>
     </main>
 
-    <script src="app.js?v=20260615-night-polish"></script>
+    <script src="app.js?v=20260615-mvp-launch"></script>
   </body>
 </html>

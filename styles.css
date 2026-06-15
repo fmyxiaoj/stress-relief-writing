@@ -177,7 +177,10 @@ textarea {
 }
 
 .night-writer.history-open .nw-textarea,
-.night-writer.history-open .nw-keyword-layer {
+.night-writer.history-open .nw-keyword-layer,
+.night-writer.history-open .nw-intro-note,
+.night-writer.history-open .nw-clear-tonight,
+.night-writer.history-open .nw-save-status {
   opacity: 0.18;
   filter: blur(0.6px);
 }
@@ -188,6 +191,30 @@ textarea {
 
 .nw-textarea::placeholder {
   color: rgba(85, 100, 140, 0.42);
+}
+
+.nw-intro-note {
+  position: absolute;
+  top: max(50px, calc(env(safe-area-inset-top, 0px) + 40px));
+  right: 58px;
+  left: 30px;
+  z-index: 22;
+  margin: 0;
+  color: rgba(132, 145, 181, 0.58);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  line-height: 1.7;
+  opacity: 1;
+  pointer-events: none;
+  transition:
+    opacity 800ms ease,
+    transform 800ms ease,
+    filter 360ms ease;
+}
+
+.night-writer.has-text .nw-intro-note {
+  opacity: 0;
+  transform: translateY(-4px);
 }
 
 .nw-history-dot {
@@ -473,6 +500,14 @@ textarea {
   word-break: break-word;
 }
 
+.nw-privacy-note {
+  margin: 14px 0 0;
+  color: rgba(112, 127, 168, 0.62);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  line-height: 1.75;
+}
+
 .nw-history-empty {
   margin: 14px 0 4px;
   color: rgba(125, 137, 174, 0.7);
@@ -500,6 +535,41 @@ textarea {
 
 .nw-goodnight.visible {
   animation: goodnight-pulse 3000ms ease-in-out infinite;
+}
+
+.nw-clear-tonight {
+  position: absolute;
+  bottom: calc(24px + var(--safe-bottom) + var(--keyboard-bottom));
+  left: max(22px, env(safe-area-inset-left, 0px));
+  z-index: 35;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: rgba(112, 127, 168, 0.54);
+  cursor: pointer;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    color 240ms ease,
+    opacity 700ms ease,
+    filter 360ms ease,
+    transform 700ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.night-writer.has-text .nw-clear-tonight {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.nw-clear-tonight:hover,
+.nw-clear-tonight:focus-visible,
+.nw-clear-tonight.confirming {
+  color: rgba(210, 178, 112, 0.8);
+  outline: none;
 }
 
 .nw-save-status {

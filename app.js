@@ -2,6 +2,7 @@ const STORAGE_KEY = "night-writing:v1";
 const ARCHIVE_KEY = "night-writing:entries:v1";
 const KEYWORD_KEY_PREFIX = "night-writing:keywords:";
 const HISTORY_HINT_KEY = "night-writing:history-hint-seen:v1";
+const STORAGE_TEST_KEY = "night-writing:storage-test:v1";
 const KEYWORD_VERSION = "night-lexicon-20260612-continuity";
 const COMPLETION_COUNT = 120;
 const HISTORY_DAYS = 7;
@@ -9,6 +10,7 @@ const HISTORY_PREVIEW_LIMIT = 80;
 const DAY_MS = 24 * 60 * 60 * 1000;
 const HISTORY_HINT_MS = 3600;
 const SAVE_STATUS_MS = 1400;
+const CLEAR_CONFIRM_MS = 2800;
 
 const DAILY_ACCENTS = [
   { start: [7, 9, 16], end: [20, 11, 9] },
@@ -425,6 +427,7 @@ const writer = document.querySelector("#nightWriter");
 const input = document.querySelector("#writingInput");
 const keywordLayer = document.querySelector("#keywordLayer");
 const goodnightSignal = document.querySelector("#goodnightSignal");
+const clearTonight = document.querySelector("#clearTonight");
 const saveStatus = document.querySelector("#saveStatus");
 const historyToggle = document.querySelector("#historyToggle");
 const historyHint = document.querySelector("#historyHint");
@@ -442,6 +445,59 @@ let dailyAccent = getDailyAccent();
 let saveTimer;
 let saveStatusTimer;
 let historyHintTimer;
+let clearConfirmTimer;
+let storageAvailable = true;
+
+function canUseStorage() {
+  try {
+    localStorage.setItem(STORAGE_TEST_KEY, "1");
+    localStorage.removeItem(STORAGE_TEST_KEY);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function safeGetItem(key) {
+  if (!storageAvailable) {
+    return null;
+  }
+
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    storageAvailable = false;
+    return null;
+  }
+}
+
+function safeSetItem(key, value) {
+  if (!storageAvailable) {
+    return false;
+  }
+
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch {
+    storageAvailable = false;
+    return false;
+  }
+}
+
+function safeRemoveItem(key) {
+  if (!storageAvailable) {
+    return false;
+  }
+
+  try {
+    localStorage.removeItem(key);
+    return true;
+  } catch {
+    storageAvailable = false;
+    return false;
+  }
+}
 
 function getEntryDate(date = new Date()) {
   const pad = (value) => String(value).padStart(2, "0");
@@ -592,7 +648,7 @@ function getKeywordCandidates(date = new Date()) {
 function loadKeywords() {
   const key = `${KEYWORD_KEY_PREFIX}${getEntryDate()}`;
   try {
-    const saved = JSON.parse(localStorage.getItem(key));
+    const saved = JSON.parse(safeGetItem(key));
     if (
       saved?.version === KEYWORD_VERSION &&
       Array.isArray(saved.words) &&
@@ -601,11 +657,11 @@ function loadKeywords() {
       return saved.words;
     }
   } catch {
-    localStorage.removeItem(key);
+    safeRemoveItem(key);
   }
 
   const selected = getKeywordCandidates();
-  localStorage.setItem(key, JSON.stringify({ version: KEYWORD_VERSION, words: selected }));
+  safeSetItem(key, JSON.stringify({ version: KEYWORD_VERSION, words: selected }));
   return selected;
 }
 
@@ -626,6 +682,8 @@ function getGlow(text) {
 }
 
 function setVisualState(text) {
+  writer.classList.toggle("has-text", text.trim().length > 0);
+
   const glow = getGlow(text);
   const completeRatio = clamp((glow - 0.88) / 0.12, 0, 1);
   writer.style.setProperty("--bg-r", Math.round(lerp(dailyAccent.start[0], dailyAccent.end[0], glow)));
@@ -691,19 +749,19 @@ function insertKeyword(keyword) {
 
 function loadEntry() {
   try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    const saved = JSON.parse(safeGetItem(STORAGE_KEY));
     if (saved?.date === getEntryDate() && typeof saved.text === "string") {
       return saved.text;
     }
   } catch {
-    localStorage.removeItem(STORAGE_KEY);
+    safeRemoveItem(STORAGE_KEY);
   }
   return "";
 }
 
 function loadArchive() {
   try {
-    const archive = JSON.parse(localStorage.getItem(ARCHIVE_KEY));
+    const archive = JSON.parse(safeGetItem(ARCHIVE_KEY));
     return Array.isArray(archive) ? archive : [];
   } catch {
     return [];
@@ -830,10 +888,10 @@ function hideHistoryHint() {
 
 function showHistoryHint() {
   try {
-    if (localStorage.getItem(HISTORY_HINT_KEY)) {
+    if (safeGetItem(HISTORY_HINT_KEY)) {
       return;
     }
-    localStorage.setItem(HISTORY_HINT_KEY, "1");
+    safeSetItem(HISTORY_HINT_KEY, "1");
   } catch {
     return;
   }
@@ -859,16 +917,47 @@ function setHistoryOpen(open) {
   }
 }
 
-function setSaveStatus(message, visible = false) {
+function setSaveStatus(message, visible = false, { sticky = false } = {}) {
   window.clearTimeout(saveStatusTimer);
   saveStatus.textContent = message;
   saveStatus.classList.toggle("visible", visible);
 
-  if (visible && message === "已保存") {
+  if (visible && !sticky && (message === "已保存" || message === "已清空")) {
     saveStatusTimer = window.setTimeout(() => {
       saveStatus.classList.remove("visible");
     }, SAVE_STATUS_MS);
   }
+}
+
+function resetClearConfirmation() {
+  window.clearTimeout(clearConfirmTimer);
+  clearTonight.textContent = "清空今晚";
+  clearTonight.classList.remove("confirming");
+}
+
+function clearTonightEntry() {
+  window.clearTimeout(saveTimer);
+  input.value = "";
+  resetClearConfirmation();
+  setVisualState(input.value);
+  persistEntry(input.value, { announce: false });
+  setSaveStatus(storageAvailable ? "已清空" : "本机保存不可用", true, { sticky: !storageAvailable });
+  input.focus({ preventScroll: true });
+}
+
+function requestClearTonight() {
+  if (!input.value.trim()) {
+    return;
+  }
+
+  if (clearTonight.classList.contains("confirming")) {
+    clearTonightEntry();
+    return;
+  }
+
+  clearTonight.textContent = "再点确认";
+  clearTonight.classList.add("confirming");
+  clearConfirmTimer = window.setTimeout(resetClearConfirmation, CLEAR_CONFIRM_MS);
 }
 
 function persistEntry(text, { announce = true } = {}) {
@@ -880,13 +969,17 @@ function persistEntry(text, { announce = true } = {}) {
     keywords,
     updatedAt: now.toISOString()
   };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entry));
+  const savedEntry = safeSetItem(STORAGE_KEY, JSON.stringify(entry));
 
   const archive = loadArchive().filter((item) => item.date !== entry.date);
   if (text.trim()) {
     archive.unshift(entry);
   }
-  localStorage.setItem(ARCHIVE_KEY, JSON.stringify(archive.slice(0, 60)));
+  const savedArchive = safeSetItem(ARCHIVE_KEY, JSON.stringify(archive.slice(0, 60)));
+  if (!savedEntry || !savedArchive) {
+    setSaveStatus("本机保存不可用", true, { sticky: true });
+    return;
+  }
   if (announce) {
     setSaveStatus("已保存", true);
   }
@@ -912,6 +1005,7 @@ function hideGoodnight() {
 }
 
 function handleInput() {
+  resetClearConfirmation();
   setVisualState(input.value);
   scheduleSave();
 }
@@ -923,6 +1017,7 @@ function focusWriting() {
   input.focus({ preventScroll: true });
 }
 
+storageAvailable = canUseStorage();
 applyDailyAccent();
 bindViewportInsetUpdates();
 keywords = loadKeywords();
@@ -934,6 +1029,10 @@ focusWriting();
 showHistoryHint();
 
 input.addEventListener("input", handleInput);
+clearTonight.addEventListener("click", (event) => {
+  event.stopPropagation();
+  requestClearTonight();
+});
 writer.addEventListener("click", focusWriting);
 historyToggle.addEventListener("click", (event) => {
   event.stopPropagation();
