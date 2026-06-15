@@ -220,6 +220,30 @@ textarea {
   box-shadow: 0 0 16px rgba(112, 127, 168, 0.2);
 }
 
+.nw-history-hint {
+  position: absolute;
+  top: 50%;
+  right: 30px;
+  width: max-content;
+  color: rgba(132, 145, 181, 0.72);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  text-shadow: 0 0 12px rgba(112, 127, 168, 0.12);
+  transform: translate3d(5px, -50%, 0);
+  transition:
+    opacity 900ms ease,
+    transform 900ms ease;
+  white-space: nowrap;
+}
+
+.nw-history-hint.visible {
+  opacity: 1;
+  transform: translate3d(0, -50%, 0);
+}
+
 .nw-history-dot:hover,
 .nw-history-dot:focus-visible,
 .nw-history-dot[aria-expanded="true"] {
@@ -476,6 +500,31 @@ textarea {
 
 .nw-goodnight.visible {
   animation: goodnight-pulse 3000ms ease-in-out infinite;
+}
+
+.nw-save-status {
+  position: absolute;
+  right: 0;
+  bottom: calc(58px + var(--safe-bottom) + var(--keyboard-bottom));
+  left: 0;
+  z-index: 35;
+  color: rgba(132, 145, 181, 0.72);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  text-align: center;
+  text-shadow: 0 0 12px rgba(112, 127, 168, 0.12);
+  transform: translateY(4px);
+  transition:
+    opacity 700ms ease,
+    transform 700ms ease;
+}
+
+.nw-save-status.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 @keyframes goodnight-pulse {

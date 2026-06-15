@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta
       name="description"
-      content="今天写点啥：睡前随便写几个字的深色解压写作页，内容只保存在本机。"
+      content="今夜写点啥：睡前随便写几个字的深色解压写作页，内容只保存在本机。"
     />
-    <title>今天写点啥</title>
-    <link rel="stylesheet" href="styles.css?v=20260614-history-detail" />
+    <title>今夜写点啥</title>
+    <link rel="stylesheet" href="styles.css?v=20260615-night-polish" />
   </head>
   <body>
     <main id="nightWriter" class="night-writer" aria-label="睡前写作区">
@@ -19,11 +19,11 @@
       <textarea
         id="writingInput"
         class="nw-textarea"
-        aria-label="今晚想写点什么"
+        aria-label="今夜想写点什么"
         autocomplete="off"
         autocapitalize="off"
         spellcheck="false"
-        placeholder="今晚想写点什么…"
+        placeholder="今夜想写点什么…"
       ></textarea>
 
       <button
@@ -33,7 +33,9 @@
         aria-label="查看过去 7 天"
         aria-expanded="false"
         aria-controls="historyPanel"
-      ></button>
+      >
+        <span id="historyHint" class="nw-history-hint" aria-hidden="true">过去 7 天</span>
+      </button>
 
       <section id="historyPanel" class="nw-history-panel" aria-label="过去 7 天" aria-hidden="true">
         <div class="nw-history-top">
@@ -49,9 +51,9 @@
       </section>
 
       <div id="goodnightSignal" class="nw-goodnight" aria-hidden="true">晚安</div>
-      <div id="saveStatus" class="sr-only" aria-live="polite">内容只保存在本机</div>
+      <div id="saveStatus" class="nw-save-status" aria-live="polite">内容只保存在本机</div>
     </main>
 
-    <script src="app.js?v=20260614-history-detail"></script>
+    <script src="app.js?v=20260615-night-polish"></script>
   </body>
 </html>

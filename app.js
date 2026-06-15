@@ -1,11 +1,14 @@
 const STORAGE_KEY = "night-writing:v1";
 const ARCHIVE_KEY = "night-writing:entries:v1";
 const KEYWORD_KEY_PREFIX = "night-writing:keywords:";
+const HISTORY_HINT_KEY = "night-writing:history-hint-seen:v1";
 const KEYWORD_VERSION = "night-lexicon-20260612-continuity";
 const COMPLETION_COUNT = 120;
 const HISTORY_DAYS = 7;
 const HISTORY_PREVIEW_LIMIT = 80;
 const DAY_MS = 24 * 60 * 60 * 1000;
+const HISTORY_HINT_MS = 3600;
+const SAVE_STATUS_MS = 1400;
 
 const DAILY_ACCENTS = [
   { start: [7, 9, 16], end: [20, 11, 9] },
@@ -424,6 +427,7 @@ const keywordLayer = document.querySelector("#keywordLayer");
 const goodnightSignal = document.querySelector("#goodnightSignal");
 const saveStatus = document.querySelector("#saveStatus");
 const historyToggle = document.querySelector("#historyToggle");
+const historyHint = document.querySelector("#historyHint");
 const historyPanel = document.querySelector("#historyPanel");
 const historyTitle = document.querySelector("#historyTitle");
 const historyList = document.querySelector("#historyList");
@@ -436,6 +440,8 @@ const historyClose = document.querySelector("#historyClose");
 let keywords = [];
 let dailyAccent = getDailyAccent();
 let saveTimer;
+let saveStatusTimer;
+let historyHintTimer;
 
 function getEntryDate(date = new Date()) {
   const pad = (value) => String(value).padStart(2, "0");
@@ -817,6 +823,25 @@ function showHistoryDetail(entry) {
   historyDetailText.textContent = text;
 }
 
+function hideHistoryHint() {
+  window.clearTimeout(historyHintTimer);
+  historyHint.classList.remove("visible");
+}
+
+function showHistoryHint() {
+  try {
+    if (localStorage.getItem(HISTORY_HINT_KEY)) {
+      return;
+    }
+    localStorage.setItem(HISTORY_HINT_KEY, "1");
+  } catch {
+    return;
+  }
+
+  historyHint.classList.add("visible");
+  historyHintTimer = window.setTimeout(hideHistoryHint, HISTORY_HINT_MS);
+}
+
 function isHistoryOpen() {
   return historyPanel.classList.contains("open");
 }
@@ -828,12 +853,25 @@ function setHistoryOpen(open) {
   historyToggle.setAttribute("aria-expanded", String(open));
 
   if (open) {
+    hideHistoryHint();
     showHistoryList();
     renderHistory();
   }
 }
 
-function persistEntry(text) {
+function setSaveStatus(message, visible = false) {
+  window.clearTimeout(saveStatusTimer);
+  saveStatus.textContent = message;
+  saveStatus.classList.toggle("visible", visible);
+
+  if (visible && message === "已保存") {
+    saveStatusTimer = window.setTimeout(() => {
+      saveStatus.classList.remove("visible");
+    }, SAVE_STATUS_MS);
+  }
+}
+
+function persistEntry(text, { announce = true } = {}) {
   const now = new Date();
   const entry = {
     date: getEntryDate(now),
@@ -849,7 +887,9 @@ function persistEntry(text) {
     archive.unshift(entry);
   }
   localStorage.setItem(ARCHIVE_KEY, JSON.stringify(archive.slice(0, 60)));
-  saveStatus.textContent = "已在本机保存";
+  if (announce) {
+    setSaveStatus("已保存", true);
+  }
 
   if (isHistoryOpen()) {
     renderHistory();
@@ -858,7 +898,7 @@ function persistEntry(text) {
 
 function scheduleSave() {
   window.clearTimeout(saveTimer);
-  saveStatus.textContent = "正在本机保存";
+  setSaveStatus("正在保存", true);
   saveTimer = window.setTimeout(() => persistEntry(input.value), 220);
 }
 
@@ -889,8 +929,9 @@ keywords = loadKeywords();
 renderKeywords();
 input.value = loadEntry();
 setVisualState(input.value);
-persistEntry(input.value);
+persistEntry(input.value, { announce: false });
 focusWriting();
+showHistoryHint();
 
 input.addEventListener("input", handleInput);
 writer.addEventListener("click", focusWriting);
