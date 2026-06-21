@@ -8,7 +8,7 @@
       content="今夜写点啥：睡前随便写几个字的深色解压写作页，内容只保存在本机。"
     />
     <title>今夜写点啥</title>
-    <link rel="stylesheet" href="styles.css?v=20260615-mvp-launch" />
+    <link rel="stylesheet" href="styles.css?v=20260620-export-all" />
   </head>
   <body>
     <main id="nightWriter" class="night-writer" aria-label="睡前写作区">
@@ -49,7 +49,10 @@
           <div id="historyDetailDate" class="nw-history-detail-date"></div>
           <div id="historyDetailText" class="nw-history-detail-text"></div>
         </article>
-        <p id="privacyNote" class="nw-privacy-note">不登录，不上传，只保存在这台设备。清理浏览器数据会丢失。</p>
+        <div class="nw-history-footer">
+          <button id="exportAll" class="nw-export-all" type="button">导出全部</button>
+          <p id="privacyNote" class="nw-privacy-note">不登录，不上传，只保存在这台设备。清理浏览器数据会丢失。</p>
+        </div>
       </section>
 
       <div id="goodnightSignal" class="nw-goodnight" aria-hidden="true">晚安</div>
@@ -57,6 +60,6 @@
       <div id="saveStatus" class="nw-save-status" aria-live="polite">内容只保存在本机</div>
     </main>
 
-    <script src="app.js?v=20260615-mvp-launch"></script>
+    <script src="app.js?v=20260620-export-all"></script>
   </body>
 </html>

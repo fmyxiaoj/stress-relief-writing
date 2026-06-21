@@ -439,6 +439,7 @@ const historyDetailDate = document.querySelector("#historyDetailDate");
 const historyDetailText = document.querySelector("#historyDetailText");
 const historyBack = document.querySelector("#historyBack");
 const historyClose = document.querySelector("#historyClose");
+const exportAll = document.querySelector("#exportAll");
 
 let keywords = [];
 let dailyAccent = getDailyAccent();
@@ -447,6 +448,7 @@ let saveStatusTimer;
 let historyHintTimer;
 let clearConfirmTimer;
 let storageAvailable = true;
+let activeEntryDate = null;
 
 function canUseStorage() {
   try {
@@ -751,11 +753,13 @@ function loadEntry() {
   try {
     const saved = JSON.parse(safeGetItem(STORAGE_KEY));
     if (saved?.date === getEntryDate() && typeof saved.text === "string") {
+      activeEntryDate = saved.date;
       return saved.text;
     }
   } catch {
     safeRemoveItem(STORAGE_KEY);
   }
+  activeEntryDate = null;
   return "";
 }
 
@@ -766,6 +770,68 @@ function loadArchive() {
   } catch {
     return [];
   }
+}
+
+function getExportEntries(archive = loadArchive()) {
+  const byDate = new Map();
+
+  archive.forEach((entry) => {
+    const text = typeof entry?.text === "string" ? entry.text.trim() : "";
+    if (!parseEntryDate(entry?.date) || !text || byDate.has(entry.date)) {
+      return;
+    }
+    byDate.set(entry.date, { ...entry, text });
+  });
+
+  return [...byDate.values()].sort((left, right) => right.date.localeCompare(left.date));
+}
+
+function formatExportTimestamp(date = new Date()) {
+  return `${getEntryDate(date)} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function formatExportDate(dateString) {
+  const date = parseEntryDate(dateString);
+  return date ? `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日` : dateString;
+}
+
+function formatExportText(archive = loadArchive(), exportedAt = new Date()) {
+  const entries = getExportEntries(archive);
+  const header = `今夜写点啥\n导出时间：${formatExportTimestamp(exportedAt)}\n共 ${entries.length} 条记录`;
+  const body = entries.map((entry) => `${formatExportDate(entry.date)}\n${entry.text}`).join("\n\n--------------------\n\n");
+  return `\uFEFF${header}${body ? `\n\n${body}` : ""}\n`;
+}
+
+function getExportFilename(date = new Date()) {
+  return `今夜写点啥-${getEntryDate(date)}.txt`;
+}
+
+function setExportLabel(message) {
+  exportAll.textContent = message;
+  window.setTimeout(() => {
+    exportAll.textContent = "导出全部";
+  }, SAVE_STATUS_MS);
+}
+
+function exportAllEntries() {
+  persistEntry(input.value, { announce: false });
+  const entries = getExportEntries();
+  if (entries.length === 0) {
+    setExportLabel("暂无记录");
+    return;
+  }
+
+  const exportedAt = new Date();
+  const blob = new Blob([formatExportText(entries, exportedAt)], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = getExportFilename(exportedAt);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  setExportLabel("已导出");
 }
 
 function parseEntryDate(dateString) {
@@ -971,11 +1037,16 @@ function persistEntry(text, { announce = true } = {}) {
   };
   const savedEntry = safeSetItem(STORAGE_KEY, JSON.stringify(entry));
 
-  const archive = loadArchive().filter((item) => item.date !== entry.date);
+  const replacedDates = new Set([entry.date]);
+  if (activeEntryDate) {
+    replacedDates.add(activeEntryDate);
+  }
+  const archive = loadArchive().filter((item) => !replacedDates.has(item.date));
   if (text.trim()) {
     archive.unshift(entry);
   }
   const savedArchive = safeSetItem(ARCHIVE_KEY, JSON.stringify(archive.slice(0, 60)));
+  activeEntryDate = text.trim() ? entry.date : null;
   if (!savedEntry || !savedArchive) {
     setSaveStatus("本机保存不可用", true, { sticky: true });
     return;
@@ -1046,6 +1117,10 @@ historyClose.addEventListener("click", (event) => {
 historyBack.addEventListener("click", (event) => {
   event.stopPropagation();
   showHistoryList();
+});
+exportAll.addEventListener("click", (event) => {
+  event.stopPropagation();
+  exportAllEntries();
 });
 historyPanel.addEventListener("click", (event) => {
   event.stopPropagation();

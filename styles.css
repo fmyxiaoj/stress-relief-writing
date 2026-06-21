@@ -295,6 +295,8 @@ textarea {
   z-index: 60;
   width: min(340px, calc(100vw - 28px));
   max-height: min(560px, calc(100dvh - 86px - var(--safe-bottom)));
+  display: flex;
+  flex-direction: column;
   padding: 18px 18px 16px;
   overflow: hidden;
   border: 1px solid rgba(125, 137, 174, 0.16);
@@ -323,6 +325,7 @@ textarea {
 }
 
 .nw-history-top {
+  flex: 0 0 auto;
   display: grid;
   grid-template-columns: 30px 1fr 30px;
   align-items: center;
@@ -408,6 +411,8 @@ textarea {
 
 .nw-history-list {
   display: grid;
+  min-height: 0;
+  flex: 1 1 auto;
   gap: 10px;
   max-height: min(470px, calc(100dvh - 166px - var(--safe-bottom)));
   overflow: auto;
@@ -474,6 +479,8 @@ textarea {
 }
 
 .nw-history-detail {
+  min-height: 0;
+  flex: 1 1 auto;
   max-height: min(470px, calc(100dvh - 166px - var(--safe-bottom)));
   overflow: auto;
   padding-right: 2px;
@@ -500,8 +507,34 @@ textarea {
   word-break: break-word;
 }
 
+.nw-history-footer {
+  flex: 0 0 auto;
+  margin-top: 14px;
+  padding-top: 11px;
+  border-top: 1px solid rgba(116, 127, 160, 0.11);
+}
+
+.nw-export-all {
+  padding: 0;
+  border: 0;
+  color: rgba(132, 145, 181, 0.78);
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  line-height: 1.6;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nw-export-all:hover,
+.nw-export-all:focus-visible {
+  color: rgba(197, 178, 132, 0.92);
+  outline: none;
+}
+
 .nw-privacy-note {
-  margin: 14px 0 0;
+  margin: 6px 0 0;
   color: rgba(112, 127, 168, 0.62);
   font-size: 11px;
   letter-spacing: 0.04em;
