@@ -447,6 +447,7 @@ let saveTimer;
 let saveStatusTimer;
 let historyHintTimer;
 let clearConfirmTimer;
+let exportLabelTimer;
 let storageAvailable = true;
 let activeEntryDate = null;
 
@@ -806,14 +807,57 @@ function getExportFilename(date = new Date()) {
   return `今夜写点啥-${getEntryDate(date)}.txt`;
 }
 
-function setExportLabel(message) {
+function setExportLabel(message, duration = SAVE_STATUS_MS) {
+  window.clearTimeout(exportLabelTimer);
   exportAll.textContent = message;
-  window.setTimeout(() => {
+  exportLabelTimer = window.setTimeout(() => {
     exportAll.textContent = "导出全部";
-  }, SAVE_STATUS_MS);
+  }, duration);
 }
 
-function exportAllEntries() {
+function isMobileExportBrowser() {
+  return /Android|iPhone|iPad|iPod|MicroMessenger/i.test(navigator.userAgent || "");
+}
+
+async function copyExportText(text) {
+  const plainText = text.replace(/^\uFEFF/, "");
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+    try {
+      await navigator.clipboard.writeText(plainText);
+      return;
+    } catch {
+      // Some embedded browsers expose Clipboard API but block writes.
+    }
+  }
+
+  const copyArea = document.createElement("textarea");
+  copyArea.value = plainText;
+  copyArea.setAttribute("readonly", "");
+  copyArea.style.position = "fixed";
+  copyArea.style.opacity = "0";
+  document.body.appendChild(copyArea);
+  copyArea.select();
+  copyArea.setSelectionRange(0, plainText.length);
+  const copied = document.execCommand("copy");
+  copyArea.remove();
+  if (!copied) {
+    throw new Error("Copy was blocked");
+  }
+}
+
+function downloadExportFile(content, fileName) {
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function exportAllEntries() {
   persistEntry(input.value, { announce: false });
   const entries = getExportEntries();
   if (entries.length === 0) {
@@ -822,16 +866,38 @@ function exportAllEntries() {
   }
 
   const exportedAt = new Date();
-  const blob = new Blob([formatExportText(entries, exportedAt)], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = getExportFilename(exportedAt);
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-  setExportLabel("已导出");
+  const content = formatExportText(entries, exportedAt);
+  const fileName = getExportFilename(exportedAt);
+
+  if (typeof File === "function" && typeof navigator.share === "function" && typeof navigator.canShare === "function") {
+    const file = new File([content], fileName, { type: "text/plain;charset=utf-8" });
+    if (navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: "今夜写点啥" });
+        setExportLabel("已打开分享");
+        return;
+      } catch (error) {
+        if (error?.name === "AbortError") {
+          setExportLabel("已取消");
+          return;
+        }
+      }
+    }
+  }
+
+  if (isMobileExportBrowser()) {
+    try {
+      await copyExportText(content);
+      setExportLabel("已复制，可粘贴保存", 4000);
+      return;
+    } catch {
+      setExportLabel("请用系统浏览器导出", 4000);
+      return;
+    }
+  }
+
+  downloadExportFile(content, fileName);
+  setExportLabel("已下载，请查看文件", 2400);
 }
 
 function parseEntryDate(dateString) {
