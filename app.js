@@ -787,21 +787,15 @@ function getExportEntries(archive = loadArchive()) {
   return [...byDate.values()].sort((left, right) => right.date.localeCompare(left.date));
 }
 
-function formatExportTimestamp(date = new Date()) {
-  const twoDigits = (value) => String(value).padStart(2, "0");
-  return `${getEntryDate(date)} ${twoDigits(date.getHours())}:${twoDigits(date.getMinutes())}`;
-}
-
 function formatExportDate(dateString) {
   const date = parseEntryDate(dateString);
   return date ? `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日` : dateString;
 }
 
-function formatExportText(archive = loadArchive(), exportedAt = new Date()) {
+function formatExportText(archive = loadArchive()) {
   const entries = getExportEntries(archive);
-  const header = `今夜写点啥\n导出时间：${formatExportTimestamp(exportedAt)}\n共 ${entries.length} 条记录`;
   const body = entries.map((entry) => `${formatExportDate(entry.date)}\n${entry.text}`).join("\n\n--------------------\n\n");
-  return `\uFEFF${header}${body ? `\n\n${body}` : ""}\n`;
+  return `\uFEFF${body}${body ? "\n" : ""}`;
 }
 
 function getExportFilename(date = new Date()) {
@@ -867,14 +861,14 @@ async function exportAllEntries() {
   }
 
   const exportedAt = new Date();
-  const content = formatExportText(entries, exportedAt);
+  const content = formatExportText(entries);
   const fileName = getExportFilename(exportedAt);
 
   if (typeof File === "function" && typeof navigator.share === "function" && typeof navigator.canShare === "function") {
     const file = new File([content], fileName, { type: "text/plain;charset=utf-8" });
     if (navigator.canShare({ files: [file] })) {
       try {
-        await navigator.share({ files: [file], title: "今夜写点啥" });
+        await navigator.share({ files: [file] });
         setExportLabel("已打开分享");
         return;
       } catch (error) {
