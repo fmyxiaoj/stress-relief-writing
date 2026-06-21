@@ -788,7 +788,8 @@ function getExportEntries(archive = loadArchive()) {
 }
 
 function formatExportTimestamp(date = new Date()) {
-  return `${getEntryDate(date)} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  const twoDigits = (value) => String(value).padStart(2, "0");
+  return `${getEntryDate(date)} ${twoDigits(date.getHours())}:${twoDigits(date.getMinutes())}`;
 }
 
 function formatExportDate(dateString) {
