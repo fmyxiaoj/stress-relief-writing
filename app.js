@@ -716,6 +716,7 @@ function createKeywordButton(keyword, index) {
   button.setAttribute("aria-label", `插入关键词：${keyword}`);
   Object.assign(button.style, KEYWORD_POSITIONS[index]);
   button.addEventListener("click", (event) => {
+    event.preventDefault();
     event.stopPropagation();
     insertKeyword(keyword);
   });
@@ -745,7 +746,7 @@ function insertKeyword(keyword) {
   const nextText = `${input.value.slice(0, start)}${keyword}${input.value.slice(end)}`;
   input.value = nextText;
   const cursor = start + keyword.length;
-  input.focus();
+  input.focus({ preventScroll: true });
   input.setSelectionRange(cursor, cursor);
   handleInput();
 }
