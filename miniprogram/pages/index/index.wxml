@@ -1,0 +1,81 @@
+<view class="writer {{hasText ? 'has-text' : ''}} {{historyOpen ? 'history-open' : ''}}" style="{{writerStyle}}" bindtap="focusWriting">
+  <view class="glow" aria-hidden="true"></view>
+  <view class="vignette" aria-hidden="true"></view>
+  <view class="stars" aria-hidden="true"></view>
+  <view class="intro" wx:if="{{!hasText}}">本机保存 · 不登录 · 不上传</view>
+
+  <view class="keyword-layer">
+    <button
+      wx:for="{{keywordItems}}"
+      wx:key="word"
+      class="keyword keyword-{{index}} {{item.active ? 'active' : ''}}"
+      data-keyword="{{item.word}}"
+      style="{{item.styleText}}"
+      hover-class="none"
+      catchtap="insertKeyword"
+    >
+      {{item.word}}
+    </button>
+  </view>
+
+  <textarea
+    class="textarea"
+    value="{{text}}"
+    placeholder="写下今晚脑子里放不下的东西…"
+    placeholder-class="placeholder"
+    maxlength="-1"
+    auto-height="{{false}}"
+    cursor-spacing="28"
+    focus="{{inputFocused}}"
+    cursor="{{cursor}}"
+    adjust-position="{{false}}"
+    bindinput="onInput"
+  ></textarea>
+
+  <view class="history-dot" aria-label="查看过去 7 天" catchtap="toggleHistory">
+    <view class="history-dot-mark"></view>
+    <text class="history-hint {{historyHintVisible ? 'visible' : ''}}">过去 7 天</text>
+  </view>
+
+  <view class="history-scrim" wx:if="{{historyOpen}}" bindtap="closeHistory"></view>
+  <view class="history-panel" wx:if="{{historyOpen}}" catchtap="noop">
+    <view class="history-top">
+      <button class="history-back" wx:if="{{detailOpen}}" aria-label="返回历史列表" hover-class="none" catchtap="backToHistory">‹</button>
+      <view class="history-back-placeholder" wx:else></view>
+      <text class="history-title">{{detailOpen ? '完整记录' : '过去 7 天'}}</text>
+      <button class="history-close" aria-label="关闭历史" hover-class="none" catchtap="closeHistory">×</button>
+    </view>
+
+    <scroll-view class="history-list" wx:if="{{!detailOpen}}" scroll-y>
+      <view wx:if="{{historyEmpty}}" class="history-empty">还没有留下前几天的文字</view>
+      <view
+        wx:for="{{history}}"
+        wx:key="date"
+        class="history-row"
+        data-date="{{item.date}}"
+        catchtap="openDetail"
+      >
+        <text class="history-date">{{item.label}}</text>
+        <text class="history-text">{{item.preview}}</text>
+      </view>
+    </scroll-view>
+
+    <scroll-view class="history-detail" wx:else scroll-y>
+      <text class="history-date">{{detailEntry.label}}</text>
+      <text class="history-detail-text">{{detailEntry.text}}</text>
+    </scroll-view>
+
+    <view class="history-footer">
+      <view class="export-all" role="button" aria-label="导出全部" hover-class="none" catchtap="exportAll">
+        <text class="export-label">导出全部</text>
+      </view>
+      <view class="privacy-note">不登录，不上传，只保存在这台设备。清理浏览器数据会丢失。</view>
+    </view>
+  </view>
+
+  <view class="goodnight" wx:if="{{goodnightVisible}}">晚安</view>
+  <button class="clear-tonight {{clearConfirming ? 'confirming' : ''}}" wx:if="{{hasText}}" hover-class="none" catchtap="requestClearTonight">
+    {{clearConfirming ? '再点确认' : '清空今晚'}}
+  </button>
+  <view class="save-status {{saveStatusVisible ? 'visible' : ''}}">{{saveStatus}}</view>
+</view>

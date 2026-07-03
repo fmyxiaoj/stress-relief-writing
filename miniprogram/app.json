@@ -1,0 +1,12 @@
+{
+  "pages": ["pages/index/index"],
+  "window": {
+    "navigationBarTitleText": "今夜写点啥",
+    "navigationBarBackgroundColor": "#07090f",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#07090f",
+    "backgroundTextStyle": "dark"
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2"
+}

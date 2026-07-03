@@ -1,0 +1,472 @@
+.writer {
+  --content-x: 60rpx;
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 72% 62% at 50% 54%, rgba(255, 145, 45, var(--glow-alpha)) 0%, transparent 100%),
+    linear-gradient(
+      145deg,
+      rgb(var(--bg-r), var(--bg-g), var(--bg-b)) 0%,
+      rgb(var(--end-r), var(--end-g), var(--end-b)) 125%
+    );
+  animation: night-entry 900ms ease both;
+  isolation: isolate;
+}
+
+button {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: normal;
+}
+
+button::after {
+  border: 0;
+}
+
+.glow,
+.vignette,
+.stars {
+  position: absolute;
+  pointer-events: none;
+}
+
+.glow,
+.vignette {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.glow {
+  z-index: 1;
+  background: radial-gradient(ellipse 62% 52% at 50% 54%, rgba(255, 176, 76, var(--glow-alpha)) 0%, transparent 74%);
+}
+
+.vignette {
+  z-index: 4;
+  opacity: var(--vignette-alpha);
+  background: radial-gradient(ellipse 80% 82% at 50% 48%, transparent 34%, rgba(2, 3, 8, 0.62) 100%);
+}
+
+.stars {
+  top: -18%;
+  right: -18%;
+  bottom: -18%;
+  left: -18%;
+  z-index: 0;
+  background-image:
+    radial-gradient(circle at 18% 20%, rgba(92, 108, 152, 0.12) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 78% 16%, rgba(215, 182, 110, 0.1) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 84% 74%, rgba(92, 108, 152, 0.12) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 28% 82%, rgba(215, 182, 110, 0.08) 0 1px, transparent 1.5px);
+}
+
+.intro {
+  position: absolute;
+  top: 100rpx;
+  right: 284rpx;
+  left: var(--content-x);
+  z-index: 22;
+  color: rgba(132, 145, 181, 0.66);
+  font-size: 26rpx;
+  letter-spacing: 1rpx;
+  line-height: 1.7;
+  pointer-events: none;
+}
+
+.keyword-layer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  pointer-events: none;
+  transition: opacity 400ms ease;
+}
+
+.keyword {
+  position: absolute;
+  padding: 16rpx 20rpx;
+  border: 0;
+  background: transparent;
+  color: rgba(92, 108, 152, 0.38);
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 26rpx;
+  letter-spacing: 5rpx;
+  line-height: 1.4;
+  pointer-events: auto;
+  text-shadow: none;
+}
+
+.keyword.active {
+  opacity: 1;
+  color: rgba(215, 182, 110, 0.88);
+  text-shadow:
+    0 0 28rpx rgba(255, 195, 90, 0.44),
+    0 0 56rpx rgba(255, 145, 45, 0.2);
+}
+
+.keyword-0 {
+  top: 25% !important;
+  left: var(--content-x) !important;
+}
+
+.keyword-1 {
+  top: 23% !important;
+  right: 18% !important;
+  left: auto !important;
+}
+
+.keyword-2 {
+  top: 42% !important;
+  right: 10% !important;
+}
+
+.keyword-3 {
+  top: 64% !important;
+  left: var(--content-x) !important;
+}
+
+.keyword-4 {
+  right: 10% !important;
+  bottom: 17% !important;
+}
+
+.has-text .keyword {
+  opacity: 0.42;
+}
+
+.has-text .keyword.active {
+  opacity: 1;
+}
+
+.textarea {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 152rpx var(--content-x) 176rpx;
+  color: #c0af87;
+  background: transparent;
+  font-size: 38rpx;
+  line-height: 2.15;
+  letter-spacing: 1.6rpx;
+  text-shadow: 0 0 calc(4px + var(--text-glow) * 16px) rgba(255, 185, 80, calc(var(--text-glow) * 0.28));
+}
+
+.history-open .textarea,
+.history-open .keyword-layer,
+.history-open .intro,
+.history-open .clear-tonight,
+.history-open .save-status {
+  opacity: 0.18;
+  filter: blur(0.6px);
+}
+
+.placeholder {
+  color: rgba(85, 100, 140, 0.42);
+}
+
+.history-dot {
+  position: absolute;
+  top: 52rpx;
+  right: 36rpx;
+  z-index: 65;
+  box-sizing: border-box;
+  min-width: 208rpx;
+  min-height: 88rpx;
+  width: auto;
+  height: 88rpx;
+  border-radius: 999rpx;
+  opacity: 1;
+  overflow: visible;
+}
+
+.history-dot-mark {
+  position: absolute;
+  top: 36rpx;
+  right: 16rpx;
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: rgba(112, 127, 168, 0.52);
+  box-shadow: 0 0 16rpx rgba(112, 127, 168, 0.2);
+}
+
+.history-hint {
+  position: absolute;
+  top: 50%;
+  right: 52rpx;
+  width: max-content;
+  color: rgba(132, 145, 181, 0.66);
+  font-size: 24rpx;
+  letter-spacing: 2rpx;
+  line-height: 1;
+  opacity: 0.58;
+  pointer-events: none;
+  transform: translate3d(0, -50%, 0);
+  white-space: nowrap;
+}
+
+.history-hint.visible {
+  opacity: 0.78;
+  transform: translate3d(0, -50%, 0);
+}
+
+.history-scrim {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 50;
+  background: rgba(2, 3, 8, 0.42);
+}
+
+.history-panel {
+  position: absolute;
+  top: 96rpx;
+  right: 24rpx;
+  left: 24rpx;
+  z-index: 60;
+  box-sizing: border-box;
+  width: auto;
+  max-width: 680rpx;
+  max-height: calc(100vh - 172rpx);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 36rpx 36rpx 32rpx;
+  border: 1rpx solid rgba(125, 137, 174, 0.16);
+  border-radius: 16rpx;
+  background: rgba(6, 8, 15, 0.96);
+  box-shadow:
+    0 40rpx 120rpx rgba(0, 0, 0, 0.32),
+    inset 0 1rpx 0 rgba(255, 255, 255, 0.03);
+}
+
+.history-top {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 88rpx 1fr 88rpx;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+}
+
+.history-title {
+  color: rgba(197, 178, 132, 0.84);
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 28rpx;
+  font-weight: 400;
+  letter-spacing: 6rpx;
+  text-align: center;
+}
+
+.history-back,
+.history-close,
+.history-back-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88rpx;
+  height: 88rpx;
+  color: rgba(132, 145, 181, 0.76);
+  font-size: 48rpx;
+  line-height: 60rpx;
+  text-align: center;
+}
+
+.history-list,
+.history-detail {
+  min-height: 0;
+  flex: 1 1 auto;
+  max-height: calc(100vh - 332rpx);
+  overflow: auto;
+}
+
+.history-empty {
+  margin: 28rpx 0 8rpx;
+  color: rgba(125, 137, 174, 0.7);
+  font-size: 28rpx;
+  line-height: 1.8;
+}
+
+.history-row {
+  display: block;
+  width: 100%;
+  padding: 0 0 24rpx;
+  margin-bottom: 22rpx;
+  border-bottom: 1rpx solid rgba(116, 127, 160, 0.11);
+}
+
+.history-date {
+  display: block;
+  color: rgba(112, 127, 168, 0.86);
+  font-size: 24rpx;
+  letter-spacing: 2rpx;
+}
+
+.history-text {
+  display: -webkit-box;
+  margin-top: 14rpx;
+  overflow: hidden;
+  color: rgba(192, 175, 135, 0.88);
+  font-size: 28rpx;
+  line-height: 1.78;
+  white-space: pre-wrap;
+  word-break: break-word;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
+.history-detail-text {
+  display: block;
+  margin-top: 14rpx;
+  color: rgba(204, 187, 145, 0.92);
+  font-size: 30rpx;
+  line-height: 1.9;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.history-footer {
+  flex: 0 0 auto;
+  margin-top: 24rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid rgba(116, 127, 160, 0.11);
+}
+
+.export-all {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 88rpx;
+  padding: 0;
+  color: rgba(132, 145, 181, 0.78);
+  background: transparent;
+  font-size: 24rpx;
+  letter-spacing: 2rpx;
+  line-height: 1.6;
+}
+
+.export-label {
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+
+.privacy-note {
+  margin-top: 12rpx;
+  color: rgba(112, 127, 168, 0.62);
+  font-size: 22rpx;
+  line-height: 1.75;
+}
+
+.goodnight {
+  position: absolute;
+  right: 0;
+  bottom: 56rpx;
+  left: 0;
+  z-index: 30;
+  color: rgba(168, 140, 88, 0.36);
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 24rpx;
+  letter-spacing: 10rpx;
+  text-align: center;
+  animation: goodnight-pulse 3000ms ease-in-out infinite;
+}
+
+.clear-tonight {
+  position: absolute;
+  bottom: 48rpx;
+  left: 44rpx;
+  z-index: 35;
+  min-width: 176rpx;
+  min-height: 88rpx;
+  display: flex;
+  align-items: center;
+  color: rgba(112, 127, 168, 0.6);
+  font-size: 24rpx;
+  letter-spacing: 4rpx;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.has-text .clear-tonight {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.clear-tonight.confirming {
+  color: rgba(210, 178, 112, 0.8);
+}
+
+.save-status {
+  position: absolute;
+  right: 0;
+  bottom: 116rpx;
+  left: 0;
+  z-index: 35;
+  color: rgba(132, 145, 181, 0.72);
+  font-size: 24rpx;
+  letter-spacing: 4rpx;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8rpx);
+}
+
+.save-status.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes goodnight-pulse {
+  0% {
+    color: rgba(168, 140, 88, 0.36);
+    filter: drop-shadow(0 0 0 rgba(210, 175, 105, 0));
+    opacity: 0.42;
+  }
+
+  50% {
+    color: rgba(220, 188, 120, 0.82);
+    filter: drop-shadow(0 0 20rpx rgba(210, 175, 105, 0.22));
+    opacity: 1;
+  }
+
+  100% {
+    color: rgba(168, 140, 88, 0.36);
+    filter: drop-shadow(0 0 0 rgba(210, 175, 105, 0));
+    opacity: 0.42;
+  }
+}
+
+@keyframes night-entry {
+  0% {
+    filter: brightness(0.86) saturate(0.96);
+  }
+
+  100% {
+    filter: brightness(1) saturate(1);
+  }
+}
