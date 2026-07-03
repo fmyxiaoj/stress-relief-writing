@@ -32,6 +32,7 @@ textarea {
 }
 
 .night-writer {
+  --content-x: clamp(26px, 11vw, 92px);
   position: relative;
   width: 100vw;
   height: 100vh;
@@ -162,7 +163,7 @@ textarea {
   height: 100%;
   padding:
     clamp(76px, 13vh, 132px)
-    clamp(26px, 11vw, 92px)
+    var(--content-x)
     calc(88px + var(--safe-bottom) + var(--keyboard-bottom));
   border: 0;
   outline: none;
@@ -202,7 +203,7 @@ textarea {
   position: absolute;
   top: max(50px, calc(env(safe-area-inset-top, 0px) + 40px));
   right: 142px;
-  left: 30px;
+  left: var(--content-x);
   z-index: 22;
   margin: 0;
   color: rgba(132, 145, 181, 0.66);
@@ -697,36 +698,30 @@ textarea {
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 520px) {
+  .night-writer {
+    --content-x: 30px;
+  }
+
   .nw-textarea {
-    padding-right: 30px;
-    padding-left: 30px;
+    padding-right: var(--content-x);
+    padding-left: var(--content-x);
   }
 
-  .nw-keyword:nth-child(1) {
-    top: 25% !important;
-    left: 8% !important;
+  .nw-keyword-layer {
+    top: max(158px, calc(env(safe-area-inset-top, 0px) + 136px));
+    right: var(--content-x);
+    left: var(--content-x);
+    bottom: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    align-items: flex-start;
   }
 
-  .nw-keyword:nth-child(2) {
-    top: 23% !important;
-    right: 18% !important;
-    left: auto !important;
-  }
-
-  .nw-keyword:nth-child(3) {
-    top: 42% !important;
-    right: 10% !important;
-  }
-
-  .nw-keyword:nth-child(4) {
-    top: 64% !important;
-    left: 8% !important;
-  }
-
-  .nw-keyword:nth-child(5) {
-    right: 10% !important;
-    bottom: 17% !important;
+  .nw-keyword {
+    position: static;
+    padding: 2px 0;
   }
 
   .nw-history-panel {
