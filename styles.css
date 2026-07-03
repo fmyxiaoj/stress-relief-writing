@@ -136,6 +136,10 @@ textarea {
   transform: translate3d(0, 0, 0);
 }
 
+.night-writer.has-text .nw-keyword.visible {
+  opacity: 0.42;
+}
+
 .nw-keyword:hover,
 .nw-keyword:focus-visible {
   color: rgba(128, 144, 190, 0.74);
@@ -143,6 +147,7 @@ textarea {
 }
 
 .nw-keyword.active {
+  opacity: 1;
   color: rgba(215, 182, 110, 0.88);
   text-shadow:
     0 0 14px rgba(255, 195, 90, 0.44),
@@ -196,11 +201,11 @@ textarea {
 .nw-intro-note {
   position: absolute;
   top: max(50px, calc(env(safe-area-inset-top, 0px) + 40px));
-  right: 58px;
+  right: 142px;
   left: 30px;
   z-index: 22;
   margin: 0;
-  color: rgba(132, 145, 181, 0.58);
+  color: rgba(132, 145, 181, 0.66);
   font-size: 13px;
   letter-spacing: 0.05em;
   line-height: 1.7;
@@ -219,16 +224,18 @@ textarea {
 
 .nw-history-dot {
   position: absolute;
-  top: max(12px, env(safe-area-inset-top, 0px));
-  right: max(12px, env(safe-area-inset-right, 0px));
+  top: max(26px, calc(env(safe-area-inset-top, 0px) + 18px));
+  right: max(18px, env(safe-area-inset-right, 0px));
   z-index: 65;
-  width: 34px;
-  height: 34px;
+  min-width: 104px;
+  min-height: 44px;
+  width: auto;
+  height: 44px;
   border: 0;
-  border-radius: 50%;
+  border-radius: 999px;
   background: transparent;
   cursor: pointer;
-  opacity: 0.58;
+  opacity: 1;
   transition:
     opacity 900ms ease,
     transform 900ms ease;
@@ -237,10 +244,10 @@ textarea {
 
 .nw-history-dot::after {
   position: absolute;
-  top: 14px;
-  left: 14px;
-  width: 6px;
-  height: 6px;
+  top: 18px;
+  right: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   content: "";
   background: rgba(112, 127, 168, 0.52);
@@ -250,16 +257,16 @@ textarea {
 .nw-history-hint {
   position: absolute;
   top: 50%;
-  right: 30px;
+  right: 26px;
   width: max-content;
-  color: rgba(132, 145, 181, 0.72);
+  color: rgba(132, 145, 181, 0.66);
   font-size: 12px;
   letter-spacing: 0.08em;
   line-height: 1;
-  opacity: 0;
+  opacity: 0.58;
   pointer-events: none;
   text-shadow: 0 0 12px rgba(112, 127, 168, 0.12);
-  transform: translate3d(5px, -50%, 0);
+  transform: translate3d(0, -50%, 0);
   transition:
     opacity 900ms ease,
     transform 900ms ease;
@@ -267,7 +274,7 @@ textarea {
 }
 
 .nw-history-hint.visible {
-  opacity: 1;
+  opacity: 0.78;
   transform: translate3d(0, -50%, 0);
 }
 
@@ -277,6 +284,12 @@ textarea {
   outline: none;
   opacity: 1;
   transform: scale(1.06);
+}
+
+.nw-history-dot:hover .nw-history-hint,
+.nw-history-dot:focus-visible .nw-history-hint,
+.nw-history-dot[aria-expanded="true"] .nw-history-hint {
+  opacity: 0.82;
 }
 
 .nw-history-dot:hover::after,
@@ -327,9 +340,9 @@ textarea {
 .nw-history-top {
   flex: 0 0 auto;
   display: grid;
-  grid-template-columns: 30px 1fr 30px;
+  grid-template-columns: 44px 1fr 44px;
   align-items: center;
-  gap: 14px;
+  gap: 8px;
   margin-bottom: 12px;
 }
 
@@ -346,8 +359,8 @@ textarea {
 .nw-history-back,
 .nw-history-close {
   position: relative;
-  width: 30px;
-  height: 30px;
+  width: 44px;
+  height: 44px;
   border: 0;
   background: transparent;
   cursor: pointer;
@@ -364,8 +377,8 @@ textarea {
 .nw-history-back::before,
 .nw-history-back::after {
   position: absolute;
-  left: 8px;
-  width: 13px;
+  left: 14px;
+  width: 16px;
   height: 1px;
   content: "";
   background: rgba(132, 145, 181, 0.76);
@@ -373,21 +386,21 @@ textarea {
 }
 
 .nw-history-back::before {
-  top: 15px;
+  top: 22px;
   transform: rotate(35deg);
 }
 
 .nw-history-back::after {
-  top: 15px;
+  top: 22px;
   transform: rotate(-35deg);
 }
 
 .nw-history-close::before,
 .nw-history-close::after {
   position: absolute;
-  top: 14px;
-  left: 8px;
-  width: 14px;
+  top: 22px;
+  left: 14px;
+  width: 16px;
   height: 1px;
   content: "";
   background: rgba(132, 145, 181, 0.76);
@@ -515,6 +528,9 @@ textarea {
 }
 
 .nw-export-all {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
   padding: 0;
   border: 0;
   color: rgba(132, 145, 181, 0.78);
@@ -575,7 +591,11 @@ textarea {
   bottom: calc(24px + var(--safe-bottom) + var(--keyboard-bottom));
   left: max(22px, env(safe-area-inset-left, 0px));
   z-index: 35;
-  padding: 8px 0;
+  min-width: 88px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0;
   border: 0;
   background: transparent;
   color: rgba(112, 127, 168, 0.54);
@@ -681,6 +701,32 @@ textarea {
   .nw-textarea {
     padding-right: 30px;
     padding-left: 30px;
+  }
+
+  .nw-keyword:nth-child(1) {
+    top: 25% !important;
+    left: 8% !important;
+  }
+
+  .nw-keyword:nth-child(2) {
+    top: 23% !important;
+    right: 18% !important;
+    left: auto !important;
+  }
+
+  .nw-keyword:nth-child(3) {
+    top: 42% !important;
+    right: 10% !important;
+  }
+
+  .nw-keyword:nth-child(4) {
+    top: 64% !important;
+    left: 8% !important;
+  }
+
+  .nw-keyword:nth-child(5) {
+    right: 10% !important;
+    bottom: 17% !important;
   }
 
   .nw-history-panel {
