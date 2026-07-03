@@ -709,19 +709,38 @@ textarea {
   }
 
   .nw-keyword-layer {
-    top: max(158px, calc(env(safe-area-inset-top, 0px) + 136px));
-    right: var(--content-x);
-    left: var(--content-x);
-    bottom: auto;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 20px;
-    align-items: flex-start;
+    inset: 0;
+    display: block;
   }
 
   .nw-keyword {
-    position: static;
-    padding: 2px 0;
+    position: absolute;
+  }
+
+  .nw-keyword:nth-child(1) {
+    top: 25% !important;
+    left: var(--content-x) !important;
+  }
+
+  .nw-keyword:nth-child(2) {
+    top: 23% !important;
+    right: 18% !important;
+    left: auto !important;
+  }
+
+  .nw-keyword:nth-child(3) {
+    top: 42% !important;
+    right: 10% !important;
+  }
+
+  .nw-keyword:nth-child(4) {
+    top: 64% !important;
+    left: var(--content-x) !important;
+  }
+
+  .nw-keyword:nth-child(5) {
+    right: 10% !important;
+    bottom: 17% !important;
   }
 
   .nw-history-panel {
