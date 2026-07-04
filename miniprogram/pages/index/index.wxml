@@ -38,9 +38,9 @@
     bindselectionchange="onSelectionChange"
   ></textarea>
 
-  <view class="history-dot" aria-label="查看过去 7 天" catchtap="toggleHistory">
-    <view class="history-dot-mark"></view>
-    <text class="history-hint {{historyHintVisible ? 'visible' : ''}}">过去 7 天</text>
+  <view class="history-dot {{historyOpen ? 'returning' : ''}}" aria-label="{{historyOpen ? '返回当前输入' : '查看过去 7 天'}}" catchtap="toggleHistory">
+    <view class="history-dot-mark" wx:if="{{!historyOpen}}"></view>
+    <text class="history-hint {{historyHintVisible || historyOpen ? 'visible' : ''}}">{{historyOpen ? '返回' : '过去 7 天'}}</text>
   </view>
 
   <view class="history-scrim" wx:if="{{historyOpen}}" bindtap="closeHistory"></view>

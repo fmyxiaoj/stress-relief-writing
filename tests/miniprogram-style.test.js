@@ -68,9 +68,13 @@ test("history trigger stays in the web top-right position above the writing surf
   const panelZ = Number(panel.match(/z-index:\s*(\d+);/)?.[1]);
 
   assert.doesNotMatch(wxml, /<button\s+class="history-dot"/);
-  assert.match(wxml, /<view\s+class="history-dot"/);
+  assert.match(wxml, /<view\s+class="history-dot\s+\{\{historyOpen \? 'returning' : ''\}\}"/);
   assert.doesNotMatch(wxml, /historyChromeStyle/);
-  assert.match(wxml, /class="history-dot"[^>]*catchtap="toggleHistory"/);
+  assert.match(wxml, /class="history-dot\s+\{\{historyOpen \? 'returning' : ''\}\}"[^>]*catchtap="toggleHistory"/);
+  assert.match(wxml, /aria-label="\{\{historyOpen \? '返回当前输入' : '查看过去 7 天'\}\}"/);
+  assert.match(wxml, /class="history-dot-mark"[^>]*wx:if="\{\{!historyOpen\}\}"/);
+  assert.match(wxml, /historyHintVisible \|\| historyOpen/);
+  assert.match(wxml, /\{\{historyOpen \? '返回' : '过去 7 天'\}\}/);
   assert.match(historyDot, /top:\s*52rpx;/);
   assert.match(historyDot, /right:\s*36rpx;/);
   assert.match(historyDot, /min-width:\s*208rpx;/);
@@ -85,6 +89,8 @@ test("history trigger stays in the web top-right position above the writing surf
   assert.match(historyHint, /right:\s*52rpx;/);
   assert.match(historyHint, /opacity:\s*0\.58;/);
   assert.match(historyHintVisible, /opacity:\s*0\.78;/);
+  assert.match(block(".history-dot.returning .history-hint"), /right:\s*0;/);
+  assert.match(block(".history-dot.returning .history-hint"), /opacity:\s*0\.86;/);
   assert.ok(historyZ > textareaZ);
   assert.ok(historyZ > scrimZ);
   assert.ok(scrimZ > textareaZ);

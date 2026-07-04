@@ -232,6 +232,12 @@ button::after {
   transform: translate3d(0, -50%, 0);
 }
 
+.history-dot.returning .history-hint {
+  right: 0;
+  color: rgba(197, 178, 132, 0.88);
+  opacity: 0.86;
+}
+
 .history-scrim {
   position: absolute;
   top: 0;
