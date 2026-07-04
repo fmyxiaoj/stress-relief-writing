@@ -25,10 +25,10 @@
     placeholder-class="placeholder"
     maxlength="-1"
     auto-height="{{false}}"
-    cursor-spacing="28"
+    cursor-spacing="120"
     focus="{{inputFocused}}"
     cursor="{{cursor}}"
-    adjust-position="{{false}}"
+    adjust-position="{{true}}"
     bindinput="onInput"
   ></textarea>
 

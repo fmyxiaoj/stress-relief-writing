@@ -123,7 +123,9 @@ test("primary interactions stop bubbling like the web implementation", () => {
   assert.match(wxml, /class="clear-tonight[^"]*"[^>]*catchtap="requestClearTonight"/);
   assert.match(wxml, /focus="\{\{inputFocused\}\}"/);
   assert.match(wxml, /cursor="\{\{cursor\}\}"/);
-  assert.match(wxml, /adjust-position="\{\{false\}\}"/);
+  assert.match(wxml, /adjust-position="\{\{true\}\}"/);
+  const cursorSpacing = Number(wxml.match(/cursor-spacing="(\d+)"/)?.[1]);
+  assert.ok(cursorSpacing >= 96);
 });
 
 test("history footer exposes a quiet export action without native button flash", () => {
