@@ -129,6 +129,10 @@ test("primary interactions stop bubbling like the web implementation", () => {
   assert.match(wxml, /class="clear-tonight[^"]*"[^>]*catchtap="requestClearTonight"/);
   assert.match(wxml, /focus="\{\{inputFocused\}\}"/);
   assert.match(wxml, /cursor="\{\{cursor\}\}"/);
+  assert.match(wxml, /selection-start="\{\{cursor\}\}"/);
+  assert.match(wxml, /selection-end="\{\{cursor\}\}"/);
+  assert.match(wxml, /bindselectionchange="onSelectionChange"/);
+  assert.match(wxml, /hold-keyboard="\{\{true\}\}"/);
   assert.match(wxml, /adjust-position="\{\{true\}\}"/);
   const cursorSpacing = Number(wxml.match(/cursor-spacing="(\d+)"/)?.[1]);
   assert.ok(cursorSpacing >= 96);

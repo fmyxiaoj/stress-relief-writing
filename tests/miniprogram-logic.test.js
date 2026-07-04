@@ -114,19 +114,108 @@ test("keyword insertion respects the current cursor like the web page", () => {
   });
 });
 
-test("keyword tap keeps the writing input focused after insertion", () => {
+test("keyword tap inserts at the cursor without blurring the writing input", () => {
+  let pageConfig;
+  const calls = [];
+  const source = readFileSync("miniprogram/pages/index/index.js", "utf8");
+  const context = {
+    Page(config) {
+      pageConfig = config;
+    },
+    wx: {
+      getStorageSync() {},
+      setStorageSync() {},
+      removeStorageSync() {}
+    },
+    clearTimeout,
+    console,
+    setTimeout() {
+      return 1;
+    }
+  };
+  vm.runInNewContext(source, context);
+
+  const page = {
+    ...pageConfig,
+    data: {
+      text: "今晚有点累",
+      cursor: 2,
+      inputFocused: true,
+      saveStatus: "",
+      saveStatusVisible: false,
+      clearConfirming: false
+    },
+    archive: [],
+    keywords: ["西瓜", "风"],
+    setData(update) {
+      calls.push(update);
+      this.data = { ...this.data, ...update };
+    }
+  };
+
+  page.insertKeyword({ currentTarget: { dataset: { keyword: "西瓜" } } });
+
+  assert.equal(page.data.text, "今晚西瓜有点累");
+  assert.equal(page.data.cursor, 4);
+  assert.equal(page.data.inputFocused, true);
+  assert.equal(
+    calls.some((call) => call.inputFocused === false),
+    false
+  );
+});
+
+test("selection changes update where the next keyword is inserted", () => {
+  let pageConfig;
+  const source = readFileSync("miniprogram/pages/index/index.js", "utf8");
+  const context = {
+    Page(config) {
+      pageConfig = config;
+    },
+    wx: {
+      getStorageSync() {},
+      setStorageSync() {},
+      removeStorageSync() {}
+    },
+    clearTimeout,
+    console,
+    setTimeout() {
+      return 1;
+    }
+  };
+  vm.runInNewContext(source, context);
+
+  const page = {
+    ...pageConfig,
+    data: {
+      text: "今晚有点累",
+      cursor: 5,
+      inputFocused: true,
+      saveStatus: "",
+      saveStatusVisible: false,
+      clearConfirming: false
+    },
+    archive: [],
+    keywords: ["西瓜", "风"],
+    setData(update) {
+      this.data = { ...this.data, ...update };
+    }
+  };
+
+  page.onSelectionChange({ detail: { selectionStart: 1, selectionEnd: 1 } });
+  page.insertKeyword({ currentTarget: { dataset: { keyword: "西瓜" } } });
+
+  assert.equal(page.data.text, "今西瓜晚有点累");
+  assert.equal(page.data.cursor, 3);
+});
+
+test("keyword tap focus handling does not force blur before refocusing", () => {
   const source = readFileSync("miniprogram/pages/index/index.js", "utf8");
   const insertStart = source.indexOf("insertKeyword(event)");
   const insertEnd = source.indexOf("toggleHistory()", insertStart);
   const insertMethod = source.slice(insertStart, insertEnd);
-  const refocusStart = source.indexOf("refocusWritingInput(cursor");
-  const refocusEnd = source.indexOf("toggleHistory()", refocusStart);
-  const refocusMethod = source.slice(refocusStart, refocusEnd);
 
-  assert.match(insertMethod, /this\.refocusWritingInput\(next\.cursor\)/);
-  assert.match(refocusMethod, /inputFocused:\s*false/);
-  assert.match(refocusMethod, /inputFocused:\s*true/);
-  assert.match(refocusMethod, /wx\.nextTick|setTimeout/);
+  assert.doesNotMatch(insertMethod, /refocusWritingInput/);
+  assert.doesNotMatch(source, /refocusWritingInput/);
 });
 
 test("export action writes user content and opens WeChat file sharing", () => {

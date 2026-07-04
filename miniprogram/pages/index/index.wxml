@@ -30,8 +30,12 @@
     cursor-spacing="120"
     focus="{{inputFocused}}"
     cursor="{{cursor}}"
+    selection-start="{{cursor}}"
+    selection-end="{{cursor}}"
+    hold-keyboard="{{true}}"
     adjust-position="{{true}}"
     bindinput="onInput"
+    bindselectionchange="onSelectionChange"
   ></textarea>
 
   <view class="history-dot" aria-label="查看过去 7 天" catchtap="toggleHistory">
