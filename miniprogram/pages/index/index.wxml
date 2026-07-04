@@ -5,17 +5,19 @@
   <view class="intro" wx:if="{{!hasText}}">本机保存 · 不登录 · 不上传</view>
 
   <view class="keyword-layer">
-    <button
+    <view
       wx:for="{{keywordItems}}"
       wx:key="word"
       class="keyword keyword-{{index}} {{item.active ? 'active' : ''}}"
+      role="button"
+      aria-label="插入关键词：{{item.word}}"
       data-keyword="{{item.word}}"
       style="{{item.styleText}}"
       hover-class="none"
       catchtap="insertKeyword"
     >
       {{item.word}}
-    </button>
+    </view>
   </view>
 
   <textarea

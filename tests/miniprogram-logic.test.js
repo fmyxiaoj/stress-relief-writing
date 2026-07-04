@@ -114,6 +114,21 @@ test("keyword insertion respects the current cursor like the web page", () => {
   });
 });
 
+test("keyword tap keeps the writing input focused after insertion", () => {
+  const source = readFileSync("miniprogram/pages/index/index.js", "utf8");
+  const insertStart = source.indexOf("insertKeyword(event)");
+  const insertEnd = source.indexOf("toggleHistory()", insertStart);
+  const insertMethod = source.slice(insertStart, insertEnd);
+  const refocusStart = source.indexOf("refocusWritingInput(cursor");
+  const refocusEnd = source.indexOf("toggleHistory()", refocusStart);
+  const refocusMethod = source.slice(refocusStart, refocusEnd);
+
+  assert.match(insertMethod, /this\.refocusWritingInput\(next\.cursor\)/);
+  assert.match(refocusMethod, /inputFocused:\s*false/);
+  assert.match(refocusMethod, /inputFocused:\s*true/);
+  assert.match(refocusMethod, /wx\.nextTick|setTimeout/);
+});
+
 test("export action writes user content and opens WeChat file sharing", () => {
   let pageConfig;
   let writtenFile;

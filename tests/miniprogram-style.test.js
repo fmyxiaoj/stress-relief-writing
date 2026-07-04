@@ -114,8 +114,14 @@ test("history panel matches the web right-top floating panel", () => {
 });
 
 test("primary interactions stop bubbling like the web implementation", () => {
+  const keywordTags = wxml.match(/<view\b[^>]*class="keyword\s[^"]*"[^>]*>/g) || [];
+
   assert.match(wxml, /class="writer[^"]*"[^>]*bindtap="focusWriting"/);
-  assert.match(wxml, /class="keyword[^"]*"[\s\S]*catchtap="insertKeyword"/);
+  assert.doesNotMatch(wxml, /<button\b[^>]*class="keyword/);
+  assert.equal(keywordTags.length, 1);
+  assert.match(keywordTags[0], /role="button"/);
+  assert.match(keywordTags[0], /catchtap="insertKeyword"/);
+  assert.match(wxml, /class="keyword\s+keyword-\{\{index\}\}[^"]*"[\s\S]*catchtap="insertKeyword"/);
   assert.match(wxml, /class="history-panel"[^>]*catchtap="noop"/);
   assert.match(wxml, /class="history-close"[^>]*catchtap="closeHistory"/);
   assert.match(wxml, /class="history-back"[^>]*catchtap="backToHistory"/);

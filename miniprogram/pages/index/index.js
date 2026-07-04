@@ -490,6 +490,28 @@ if (typeof Page === "function") {
       const keyword = event.currentTarget.dataset.keyword;
       const next = insertTextAtCursor(this.data.text, keyword, this.data.cursor);
       this.onInput({ detail: { value: next.text, cursor: next.cursor } });
+      this.refocusWritingInput(next.cursor);
+    },
+
+    refocusWritingInput(cursor = this.data.cursor) {
+      this.setData({
+        inputFocused: false,
+        cursor
+      });
+
+      const focusAgain = () => {
+        this.setData({
+          inputFocused: true,
+          cursor
+        });
+      };
+
+      if (typeof wx !== "undefined" && typeof wx.nextTick === "function") {
+        wx.nextTick(focusAgain);
+        return;
+      }
+
+      setTimeout(focusAgain, 0);
     },
 
     toggleHistory() {
