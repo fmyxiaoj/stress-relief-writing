@@ -95,12 +95,12 @@ test("export contains every valid dated writing without product header metadata"
   assert.ok(exported.indexOf("2026年6月20日") < exported.indexOf("2026年6月10日"));
   assert.match(exported, /今晚的记录/);
   assert.match(exported, /十天前的记录/);
-  assert.doesNotMatch(exported, /今夜写点啥|导出时间|共 2 条记录/);
+  assert.doesNotMatch(exported, /今[夜晚]写点啥|导出时间|共 2 条记录/);
   assert.doesNotMatch(exported, /无效日期/);
 });
 
 test("export filename is stable and readable", () => {
-  assert.equal(__test__.getExportFilename(new Date(2026, 5, 20, 22, 35)), "今夜写点啥-2026-06-20.txt");
+  assert.equal(__test__.getExportFilename(new Date(2026, 5, 20, 22, 35)), "今晚写点啥-2026-06-20.txt");
 });
 
 test("keyword insertion respects the current cursor like the web page", () => {
@@ -158,7 +158,7 @@ test("export action writes user content and opens WeChat file sharing", () => {
   assert.equal(writtenFile.encoding, "utf8");
   assert.equal(writtenFile.data, "\uFEFF2026年6月21日\n这是用户真正写下的内容\n");
   assert.equal(sharedFile.filePath, writtenFile.filePath);
-  assert.match(sharedFile.fileName, /^今夜写点啥-\d{4}-\d{2}-\d{2}\.txt$/);
+  assert.match(sharedFile.fileName, /^今晚写点啥-\d{4}-\d{2}-\d{2}\.txt$/);
 });
 
 test("file sharing falls back to copying the complete writing", () => {

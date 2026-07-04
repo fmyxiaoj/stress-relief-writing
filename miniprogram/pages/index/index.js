@@ -256,7 +256,7 @@ function formatExportText(archive = []) {
 }
 
 function getExportFilename(date = new Date()) {
-  return `今夜写点啥-${getEntryDate(date)}.txt`;
+  return `今晚写点啥-${getEntryDate(date)}.txt`;
 }
 
 function insertTextAtCursor(text, keyword, cursor = String(text).length) {

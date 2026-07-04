@@ -34,8 +34,8 @@ test("history rows are views, not default mini program buttons", () => {
 });
 
 test("page uses native navigation title instead of a custom navigation canvas", () => {
-  assert.equal(appConfig.window.navigationBarTitleText, "今夜写点啥");
-  assert.equal(pageConfig.navigationBarTitleText, "今夜写点啥");
+  assert.equal(appConfig.window.navigationBarTitleText, "今晚写点啥");
+  assert.equal(pageConfig.navigationBarTitleText, "今晚写点啥");
   assert.notEqual(pageConfig.navigationStyle, "custom");
   assert.match(block(".writer"), /height:\s*100vh;/);
   assert.match(block(".writer"), /animation:\s*night-entry\s+900ms\s+ease\s+both;/);
@@ -177,7 +177,8 @@ test("writing surface keeps web copy and layered visual elements", () => {
   assert.match(wxml, /placeholder="写下今晚脑子里放不下的东西…"/);
   assert.match(wxml, />本机保存 · 不登录 · 不上传</);
   assert.match(writer, /--content-x:\s*60rpx;/);
-  assert.match(intro, /left:\s*var\(--content-x\);/);
+  assert.match(writer, /--intro-x:\s*72rpx;/);
+  assert.match(intro, /left:\s*var\(--intro-x\);/);
   assert.match(textarea, /padding:\s*152rpx var\(--content-x\) 176rpx;/);
   assert.match(keyword0, /top:\s*25%(?:\s*!important)?;/);
   assert.match(keyword0, /left:\s*var\(--content-x\)(?:\s*!important)?;/);

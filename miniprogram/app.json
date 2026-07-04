@@ -1,7 +1,7 @@
 {
   "pages": ["pages/index/index"],
   "window": {
-    "navigationBarTitleText": "今夜写点啥",
+    "navigationBarTitleText": "今晚写点啥",
     "navigationBarBackgroundColor": "#07090f",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#07090f",
