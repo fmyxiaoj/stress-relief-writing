@@ -1,8 +1,13 @@
 :root {
   color-scheme: dark;
-  --bg-r: 7;
-  --bg-g: 9;
-  --bg-b: 16;
+  --night-surface: #090b12;
+  --paper-ink: #d8c79e;
+  --dusk-blue: #7d89ae;
+  --ember: #c68852;
+  --panel-surface: #0c0e18;
+  --bg-r: 8;
+  --bg-g: 10;
+  --bg-b: 17;
   --glow-alpha: 0;
   --text-glow: 0;
   --vignette-alpha: 0;
@@ -23,7 +28,7 @@ body {
   min-height: 100%;
   margin: 0;
   overflow: hidden;
-  background: #07090f;
+  background: var(--night-surface);
 }
 
 button,
@@ -39,7 +44,8 @@ textarea {
   height: 100dvh;
   overflow: hidden;
   background:
-    radial-gradient(ellipse 72% 62% at 50% 54%, rgba(255, 145, 45, var(--glow-alpha)) 0%, transparent 100%),
+    radial-gradient(ellipse 72% 58% at 50% 57%, rgba(198, 136, 82, var(--glow-alpha)) 0%, transparent 76%),
+    linear-gradient(180deg, rgba(15, 18, 30, 0.42) 0%, rgba(7, 8, 14, 0.08) 46%, rgba(17, 10, 9, 0.24) 100%),
     linear-gradient(
       145deg,
       rgb(var(--bg-r), var(--bg-g), var(--bg-b)) 0%,
@@ -58,11 +64,11 @@ textarea {
   content: "";
   pointer-events: none;
   background-image:
-    radial-gradient(circle at 18% 20%, rgba(92, 108, 152, 0.12) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 78% 16%, rgba(215, 182, 110, 0.1) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 84% 74%, rgba(92, 108, 152, 0.12) 0 1px, transparent 1.5px),
-    radial-gradient(circle at 28% 82%, rgba(215, 182, 110, 0.08) 0 1px, transparent 1.5px);
-  opacity: 0.72;
+    radial-gradient(circle at 18% 20%, rgba(125, 137, 174, 0.12) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 78% 16%, rgba(216, 199, 158, 0.1) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 84% 74%, rgba(125, 137, 174, 0.1) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 28% 82%, rgba(198, 136, 82, 0.08) 0 1px, transparent 1.5px);
+  opacity: 0.64;
 }
 
 .night-writer::after {
@@ -89,14 +95,14 @@ textarea {
 
 .nw-glow {
   z-index: 1;
-  background: radial-gradient(ellipse 62% 52% at 50% 54%, rgba(255, 176, 76, var(--glow-alpha)) 0%, transparent 74%);
+  background: radial-gradient(ellipse 58% 48% at 50% 58%, rgba(214, 169, 101, var(--glow-alpha)) 0%, transparent 72%);
   transition: background 3000ms ease;
 }
 
 .nw-vignette {
   z-index: 4;
   opacity: var(--vignette-alpha);
-  background: radial-gradient(ellipse 80% 82% at 50% 48%, transparent 34%, rgba(2, 3, 8, 0.62) 100%);
+  background: radial-gradient(ellipse 78% 80% at 50% 48%, transparent 34%, rgba(2, 3, 8, 0.58) 100%);
   transition: opacity 3200ms ease;
 }
 
@@ -113,7 +119,7 @@ textarea {
   padding: 8px 10px;
   border: 0;
   background: transparent;
-  color: rgba(92, 108, 152, 0.38);
+  color: rgba(125, 137, 174, 0.34);
   cursor: pointer;
   font-family: "Songti SC", "STSong", "SimSun", Georgia, serif;
   font-size: clamp(12px, 3.2vw, 14px);
@@ -143,16 +149,16 @@ textarea {
 
 .nw-keyword:hover,
 .nw-keyword:focus-visible {
-  color: rgba(128, 144, 190, 0.74);
+  color: rgba(147, 158, 196, 0.72);
   outline: none;
 }
 
 .nw-keyword.active {
   opacity: 1;
-  color: rgba(215, 182, 110, 0.88);
+  color: rgba(216, 199, 158, 0.9);
   text-shadow:
-    0 0 14px rgba(255, 195, 90, 0.44),
-    0 0 28px rgba(255, 145, 45, 0.2);
+    0 0 14px rgba(214, 169, 101, 0.38),
+    0 0 28px rgba(198, 136, 82, 0.18);
 }
 
 .nw-textarea {
@@ -169,13 +175,13 @@ textarea {
   outline: none;
   resize: none;
   background: transparent;
-  color: #c0af87;
-  caret-color: rgba(220, 182, 100, 0.82);
+  color: var(--paper-ink);
+  caret-color: rgba(214, 169, 101, 0.86);
   font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
   font-size: clamp(18px, 4.7vw, 24px);
   line-height: 2.15;
   letter-spacing: 0.04em;
-  text-shadow: 0 0 calc(4px + var(--text-glow) * 16px) rgba(255, 185, 80, calc(var(--text-glow) * 0.28));
+  text-shadow: 0 0 calc(4px + var(--text-glow) * 14px) rgba(214, 169, 101, calc(var(--text-glow) * 0.24));
   scrollbar-width: none;
   transition:
     opacity 360ms ease,
@@ -196,7 +202,7 @@ textarea {
 }
 
 .nw-textarea::placeholder {
-  color: rgba(85, 100, 140, 0.42);
+  color: rgba(125, 137, 174, 0.34);
 }
 
 .nw-intro-note {
@@ -206,7 +212,7 @@ textarea {
   left: var(--content-x);
   z-index: 22;
   margin: 0;
-  color: rgba(132, 145, 181, 0.66);
+  color: rgba(125, 137, 174, 0.7);
   font-size: 13px;
   letter-spacing: 0.05em;
   line-height: 1.7;
@@ -251,8 +257,8 @@ textarea {
   height: 7px;
   border-radius: 50%;
   content: "";
-  background: rgba(112, 127, 168, 0.52);
-  box-shadow: 0 0 16px rgba(112, 127, 168, 0.2);
+  background: rgba(125, 137, 174, 0.52);
+  box-shadow: 0 0 16px rgba(125, 137, 174, 0.2);
 }
 
 .nw-history-hint {
@@ -260,13 +266,13 @@ textarea {
   top: 50%;
   right: 26px;
   width: max-content;
-  color: rgba(132, 145, 181, 0.66);
+  color: rgba(125, 137, 174, 0.68);
   font-size: 12px;
   letter-spacing: 0.08em;
   line-height: 1;
   opacity: 0.58;
   pointer-events: none;
-  text-shadow: 0 0 12px rgba(112, 127, 168, 0.12);
+  text-shadow: 0 0 12px rgba(125, 137, 174, 0.12);
   transform: translate3d(0, -50%, 0);
   transition:
     opacity 900ms ease,
@@ -296,10 +302,10 @@ textarea {
 .nw-history-dot:hover::after,
 .nw-history-dot:focus-visible::after,
 .nw-history-dot[aria-expanded="true"]::after {
-  background: rgba(210, 178, 112, 0.78);
+  background: rgba(216, 199, 158, 0.78);
   box-shadow:
-    0 0 14px rgba(255, 195, 90, 0.3),
-    0 0 28px rgba(255, 145, 45, 0.12);
+    0 0 14px rgba(214, 169, 101, 0.28),
+    0 0 28px rgba(198, 136, 82, 0.12);
 }
 
 .nw-history-panel {
@@ -313,13 +319,13 @@ textarea {
   flex-direction: column;
   padding: 18px 18px 16px;
   overflow: hidden;
-  border: 1px solid rgba(125, 137, 174, 0.16);
+  border: 1px solid rgba(125, 137, 174, 0.18);
   border-radius: 8px;
-  background: rgba(6, 8, 15, 0.96);
+  background: linear-gradient(180deg, rgba(12, 14, 24, 0.96), rgba(8, 9, 16, 0.98));
   backdrop-filter: blur(18px);
   box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.32),
-    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    0 20px 60px rgba(2, 3, 8, 0.38),
+    inset 0 1px 0 rgba(216, 199, 158, 0.04);
   -webkit-backdrop-filter: blur(18px);
   opacity: 0;
   pointer-events: none;
@@ -349,7 +355,7 @@ textarea {
 
 .nw-history-top h2 {
   margin: 0;
-  color: rgba(197, 178, 132, 0.84);
+  color: rgba(216, 199, 158, 0.84);
   font-family: "Songti SC", "STSong", Georgia, serif;
   font-size: 14px;
   font-weight: 400;
@@ -382,7 +388,7 @@ textarea {
   width: 16px;
   height: 1px;
   content: "";
-  background: rgba(132, 145, 181, 0.76);
+  background: rgba(125, 137, 174, 0.76);
   transform-origin: 1px 50%;
 }
 
@@ -404,7 +410,7 @@ textarea {
   width: 16px;
   height: 1px;
   content: "";
-  background: rgba(132, 145, 181, 0.76);
+  background: rgba(125, 137, 174, 0.76);
 }
 
 .nw-history-close::before {
@@ -448,7 +454,7 @@ textarea {
   gap: 7px;
   width: 100%;
   padding: 0 0 12px;
-  border-bottom: 1px solid rgba(116, 127, 160, 0.11);
+  border-bottom: 1px solid rgba(125, 137, 174, 0.12);
   border-top: 0;
   border-right: 0;
   border-left: 0;
@@ -470,11 +476,11 @@ textarea {
 
 .nw-history-item:hover .nw-history-text,
 .nw-history-item:focus-visible .nw-history-text {
-  color: rgba(215, 196, 150, 0.94);
+  color: rgba(216, 199, 158, 0.94);
 }
 
 .nw-history-date {
-  color: rgba(112, 127, 168, 0.86);
+  color: rgba(125, 137, 174, 0.86);
   font-size: 12px;
   letter-spacing: 0.08em;
 }
@@ -482,7 +488,7 @@ textarea {
 .nw-history-text {
   display: -webkit-box;
   overflow: hidden;
-  color: rgba(192, 175, 135, 0.88);
+  color: rgba(216, 199, 158, 0.82);
   font-size: 14px;
   letter-spacing: 0.04em;
   line-height: 1.78;
@@ -507,13 +513,13 @@ textarea {
 
 .nw-history-detail-date {
   margin-bottom: 14px;
-  color: rgba(112, 127, 168, 0.88);
+  color: rgba(125, 137, 174, 0.88);
   font-size: 12px;
   letter-spacing: 0.08em;
 }
 
 .nw-history-detail-text {
-  color: rgba(204, 187, 145, 0.92);
+  color: rgba(216, 199, 158, 0.92);
   font-size: 15px;
   letter-spacing: 0.04em;
   line-height: 1.9;
@@ -525,7 +531,7 @@ textarea {
   flex: 0 0 auto;
   margin-top: 14px;
   padding-top: 11px;
-  border-top: 1px solid rgba(116, 127, 160, 0.11);
+  border-top: 1px solid rgba(125, 137, 174, 0.12);
 }
 
 .nw-export-all {
@@ -546,13 +552,13 @@ textarea {
 
 .nw-export-all:hover,
 .nw-export-all:focus-visible {
-  color: rgba(197, 178, 132, 0.92);
+  color: rgba(216, 199, 158, 0.92);
   outline: none;
 }
 
 .nw-privacy-note {
   margin: 6px 0 0;
-  color: rgba(112, 127, 168, 0.62);
+  color: rgba(125, 137, 174, 0.62);
   font-size: 11px;
   letter-spacing: 0.04em;
   line-height: 1.75;
@@ -560,7 +566,7 @@ textarea {
 
 .nw-history-empty {
   margin: 14px 0 4px;
-  color: rgba(125, 137, 174, 0.7);
+  color: rgba(125, 137, 174, 0.72);
   font-size: 14px;
   letter-spacing: 0.05em;
   line-height: 1.8;
@@ -572,7 +578,7 @@ textarea {
   bottom: calc(28px + var(--safe-bottom) + var(--keyboard-bottom));
   left: 0;
   z-index: 30;
-  color: rgba(168, 140, 88, 0);
+  color: rgba(198, 136, 82, 0);
   font-family: "Songti SC", "STSong", Georgia, serif;
   font-size: 12px;
   letter-spacing: 0.35em;
@@ -599,7 +605,7 @@ textarea {
   padding: 0;
   border: 0;
   background: transparent;
-  color: rgba(112, 127, 168, 0.54);
+  color: rgba(125, 137, 174, 0.56);
   cursor: pointer;
   font-size: 12px;
   letter-spacing: 0.12em;
@@ -622,7 +628,7 @@ textarea {
 .nw-clear-tonight:hover,
 .nw-clear-tonight:focus-visible,
 .nw-clear-tonight.confirming {
-  color: rgba(210, 178, 112, 0.8);
+  color: rgba(216, 199, 158, 0.82);
   outline: none;
 }
 
@@ -632,14 +638,14 @@ textarea {
   bottom: calc(58px + var(--safe-bottom) + var(--keyboard-bottom));
   left: 0;
   z-index: 35;
-  color: rgba(132, 145, 181, 0.72);
+  color: rgba(125, 137, 174, 0.74);
   font-size: 12px;
   letter-spacing: 0.12em;
   line-height: 1;
   opacity: 0;
   pointer-events: none;
   text-align: center;
-  text-shadow: 0 0 12px rgba(112, 127, 168, 0.12);
+  text-shadow: 0 0 12px rgba(125, 137, 174, 0.12);
   transform: translateY(4px);
   transition:
     opacity 700ms ease,
@@ -653,20 +659,20 @@ textarea {
 
 @keyframes goodnight-pulse {
   0% {
-    color: rgba(168, 140, 88, 0.36);
-    filter: drop-shadow(0 0 0 rgba(210, 175, 105, 0));
+    color: rgba(198, 136, 82, 0.36);
+    filter: drop-shadow(0 0 0 rgba(214, 169, 101, 0));
     opacity: 0.42;
   }
 
   50% {
-    color: rgba(220, 188, 120, 0.82);
-    filter: drop-shadow(0 0 10px rgba(210, 175, 105, 0.22));
+    color: rgba(216, 199, 158, 0.82);
+    filter: drop-shadow(0 0 10px rgba(214, 169, 101, 0.2));
     opacity: 1;
   }
 
   100% {
-    color: rgba(168, 140, 88, 0.36);
-    filter: drop-shadow(0 0 0 rgba(210, 175, 105, 0));
+    color: rgba(198, 136, 82, 0.36);
+    filter: drop-shadow(0 0 0 rgba(214, 169, 101, 0));
     opacity: 0.42;
   }
 }
@@ -744,9 +750,24 @@ textarea {
   }
 
   .nw-history-panel {
-    top: 48px;
+    top: auto;
     right: 12px;
+    bottom: calc(12px + var(--safe-bottom));
     left: 12px;
     width: auto;
+    max-height: min(62dvh, calc(100dvh - 112px - var(--safe-bottom)));
+    border-radius: 8px 8px 6px 6px;
+    transform: translate3d(0, 14px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
   }
 }
