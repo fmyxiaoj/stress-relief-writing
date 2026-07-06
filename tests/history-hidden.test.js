@@ -27,8 +27,8 @@ test("history list and detail are not rendered while hidden", () => {
 test("history assets use the current cache-busting version", () => {
   const html = readFileSync(join(__dirname, "..", "index.html"), "utf8");
 
-  assert.match(html, /styles\.css\?v=20260706-lamp-field/);
-  assert.match(html, /app\.js\?v=20260706-lamp-field/);
+  assert.match(html, /styles\.css\?v=20260707-lamp-pop/);
+  assert.match(html, /app\.js\?v=20260707-lamp-pop/);
   assert.match(html, /<link rel="icon" href="data:," \/>/);
 });
 
@@ -119,6 +119,8 @@ test("v3 visual system uses a soft writing light instead of a hard paper card", 
   assert.match(css, /\.nw-glow::before[\s\S]*var\(--lamp-presence\)/);
   assert.match(css, /\.nw-glow::after[\s\S]*linear-gradient\(90deg,\s*transparent,\s*rgba\(226,\s*204,\s*145,\s*var\(--line-light\)\),\s*transparent\)/);
   assert.doesNotMatch(css, /\.night-writer\.has-text[\s\S]*--writing-light:\s*0\.16;/);
+  assert.match(css, /\.night-writer\.has-text \.nw-glow \{[\s\S]*animation:\s*lamp-switch-on 760ms/);
+  assert.match(css, /@keyframes lamp-switch-on/);
   assert.match(css, /@keyframes writing-light-breathe/);
   assert.match(js, /--lamp-presence/);
   assert.match(js, /--writing-light/);
@@ -147,10 +149,11 @@ test("writing light switches on to a stable lamp field", () => {
     'setVisualState("");',
     "globalThis.baseLight = state['--writing-light'];",
     "globalThis.baseLamp = state['--lamp-presence'];",
-    'setVisualState("一".repeat(28));',
-    "globalThis.earlyLight = state['--writing-light'];",
-    "globalThis.earlyLine = state['--line-light'];",
-    "globalThis.earlyLamp = state['--lamp-presence'];",
+    'setVisualState("一");',
+    "globalThis.firstLight = state['--writing-light'];",
+    "globalThis.firstLine = state['--line-light'];",
+    "globalThis.firstLamp = state['--lamp-presence'];",
+    "globalThis.firstRoomQuiet = state['--room-quiet'];",
     'setVisualState("一".repeat(120));',
     "globalThis.longLight = state['--writing-light'];",
     "globalThis.longLine = state['--line-light'];",
@@ -162,11 +165,12 @@ test("writing light switches on to a stable lamp field", () => {
   vm.runInNewContext(source, context);
 
   assert.equal(context.baseLamp, 0);
-  assert.ok(context.earlyLamp > 0.99);
-  assert.equal(context.longLamp, context.earlyLamp);
-  assert.ok(context.earlyLight - context.baseLight > 0.04);
-  assert.ok(Math.abs(context.longLight - context.earlyLight) <= 0.004);
-  assert.ok(Math.abs(context.longLine - context.earlyLine) <= 0.004);
+  assert.equal(context.firstLamp, 1);
+  assert.equal(context.firstRoomQuiet, 0);
+  assert.ok(context.firstLight - context.baseLight > 0.06);
+  assert.equal(context.longLamp, context.firstLamp);
+  assert.ok(Math.abs(context.longLight - context.firstLight) <= 0.004);
+  assert.ok(Math.abs(context.longLine - context.firstLine) <= 0.004);
   assert.ok(context.roomQuiet > 0.9);
 });
 
@@ -179,12 +183,12 @@ test("desktop writing area keeps the light field aligned to the left margin", ()
   );
 });
 
-test("main writing text uses a diary serif font stack", () => {
+test("main writing text prioritizes iOS Songti before diary fallbacks", () => {
   const css = readFileSync(join(__dirname, "..", "styles.css"), "utf8");
 
   assert.match(
     css,
-    /--diary-font:\s*"LXGW WenKai Screen",\s*"LXGW WenKai",\s*"Kaiti SC",\s*"STKaiti",\s*"KaiTi",\s*"FangSong",\s*"Songti SC",\s*"STSong",\s*"Noto Serif CJK SC",\s*serif;/
+    /--diary-font:\s*"Songti SC",\s*"STSong",\s*"LXGW WenKai Screen",\s*"LXGW WenKai",\s*"Kaiti SC",\s*"STKaiti",\s*"KaiTi",\s*"FangSong",\s*"Noto Serif CJK SC",\s*serif;/
   );
   assert.match(
     css,

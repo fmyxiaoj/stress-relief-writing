@@ -688,11 +688,12 @@ function getGlow(text) {
 }
 
 function setVisualState(text) {
-  writer.classList.toggle("has-text", text.trim().length > 0);
+  const hasWriting = text.trim().length > 0;
+  writer.classList.toggle("has-text", hasWriting);
 
   const glow = getGlow(text);
   const completeRatio = clamp((glow - 0.88) / 0.12, 0, 1);
-  const lampRatio = clamp(glow / 0.18, 0, 1);
+  const lampRatio = hasWriting ? 1 : 0;
   const quietRatio = clamp((glow - 0.18) / 0.82, 0, 1);
   const backgroundRatio = lerp(0, 0.38, lampRatio);
   const writingLight = lerp(0.06, 0.132, lampRatio);
