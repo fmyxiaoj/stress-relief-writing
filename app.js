@@ -428,6 +428,9 @@ const input = document.querySelector("#writingInput");
 const keywordLayer = document.querySelector("#keywordLayer");
 const goodnightSignal = document.querySelector("#goodnightSignal");
 const clearTonight = document.querySelector("#clearTonight");
+const clearPanel = document.querySelector("#clearPanel");
+const clearKeep = document.querySelector("#clearKeep");
+const clearConfirm = document.querySelector("#clearConfirm");
 const saveStatus = document.querySelector("#saveStatus");
 const historyToggle = document.querySelector("#historyToggle");
 const historyHint = document.querySelector("#historyHint");
@@ -689,10 +692,15 @@ function setVisualState(text) {
 
   const glow = getGlow(text);
   const completeRatio = clamp((glow - 0.88) / 0.12, 0, 1);
+  const activeRatio = clamp(glow / 0.72, 0, 1);
+  const writingLight = lerp(0.06, 0.16, activeRatio);
+  const lineLight = lerp(0.05, 0.16, activeRatio);
   writer.style.setProperty("--bg-r", Math.round(lerp(dailyAccent.start[0], dailyAccent.end[0], glow)));
   writer.style.setProperty("--bg-g", Math.round(lerp(dailyAccent.start[1], dailyAccent.end[1], glow)));
   writer.style.setProperty("--bg-b", Math.round(lerp(dailyAccent.start[2], dailyAccent.end[2], glow)));
   writer.style.setProperty("--glow-alpha", lerp(0, 0.18, glow).toFixed(3));
+  writer.style.setProperty("--writing-light", writingLight.toFixed(3));
+  writer.style.setProperty("--line-light", lineLight.toFixed(3));
   writer.style.setProperty("--text-glow", glow.toFixed(3));
   writer.style.setProperty("--vignette-alpha", completeRatio.toFixed(3));
 
@@ -1033,6 +1041,10 @@ function isHistoryOpen() {
 }
 
 function setHistoryOpen(open) {
+  if (open) {
+    setClearConfirmOpen(false);
+  }
+
   writer.classList.toggle("history-open", open);
   historyPanel.classList.toggle("open", open);
   historyPanel.setAttribute("aria-hidden", String(!open));
@@ -1042,6 +1054,22 @@ function setHistoryOpen(open) {
     hideHistoryHint();
     showHistoryList();
     renderHistory();
+  }
+}
+
+function isClearConfirmOpen() {
+  return clearPanel.classList.contains("open");
+}
+
+function setClearConfirmOpen(open) {
+  window.clearTimeout(clearConfirmTimer);
+  writer.classList.toggle("clear-open", open);
+  clearPanel.classList.toggle("open", open);
+  clearPanel.setAttribute("aria-hidden", String(!open));
+
+  if (open) {
+    setHistoryOpen(false);
+    clearConfirmTimer = window.setTimeout(() => setClearConfirmOpen(false), CLEAR_CONFIRM_MS);
   }
 }
 
@@ -1059,8 +1087,7 @@ function setSaveStatus(message, visible = false, { sticky = false } = {}) {
 
 function resetClearConfirmation() {
   window.clearTimeout(clearConfirmTimer);
-  clearTonight.textContent = "清空今晚";
-  clearTonight.classList.remove("confirming");
+  setClearConfirmOpen(false);
 }
 
 function clearTonightEntry() {
@@ -1078,14 +1105,7 @@ function requestClearTonight() {
     return;
   }
 
-  if (clearTonight.classList.contains("confirming")) {
-    clearTonightEntry();
-    return;
-  }
-
-  clearTonight.textContent = "再点确认";
-  clearTonight.classList.add("confirming");
-  clearConfirmTimer = window.setTimeout(resetClearConfirmation, CLEAR_CONFIRM_MS);
+  setClearConfirmOpen(true);
 }
 
 function persistEntry(text, { announce = true } = {}) {
@@ -1147,6 +1167,9 @@ function focusWriting() {
   if (isHistoryOpen()) {
     setHistoryOpen(false);
   }
+  if (isClearConfirmOpen()) {
+    setClearConfirmOpen(false);
+  }
   input.focus({ preventScroll: true });
 }
 
@@ -1165,6 +1188,15 @@ input.addEventListener("input", handleInput);
 clearTonight.addEventListener("click", (event) => {
   event.stopPropagation();
   requestClearTonight();
+});
+clearKeep.addEventListener("click", (event) => {
+  event.stopPropagation();
+  setClearConfirmOpen(false);
+  input.focus({ preventScroll: true });
+});
+clearConfirm.addEventListener("click", (event) => {
+  event.stopPropagation();
+  clearTonightEntry();
 });
 writer.addEventListener("click", focusWriting);
 historyToggle.addEventListener("click", (event) => {
@@ -1187,9 +1219,13 @@ exportAll.addEventListener("click", (event) => {
 historyPanel.addEventListener("click", (event) => {
   event.stopPropagation();
 });
+clearPanel.addEventListener("click", (event) => {
+  event.stopPropagation();
+});
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && isHistoryOpen()) {
+  if (event.key === "Escape" && (isHistoryOpen() || isClearConfirmOpen())) {
     setHistoryOpen(false);
+    setClearConfirmOpen(false);
     focusWriting();
   }
 });

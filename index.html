@@ -8,14 +8,15 @@
       content="今夜写点啥：睡前随便写几个字的深色解压写作页，内容只保存在本机。"
     />
     <title>今夜写点啥</title>
-    <link rel="stylesheet" href="styles.css?v=20260705-night-paper" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="styles.css?v=20260706-keyword-visible" />
   </head>
   <body>
     <main id="nightWriter" class="night-writer" aria-label="睡前写作区">
       <div class="nw-glow" aria-hidden="true"></div>
       <div class="nw-vignette" aria-hidden="true"></div>
       <div id="keywordLayer" class="nw-keyword-layer" aria-label="关键词星点"></div>
-      <p id="introNote" class="nw-intro-note">本机保存 · 不登录 · 不上传</p>
+      <p id="introNote" class="nw-intro-note">本机保存<br />不登录，不上传</p>
 
       <textarea
         id="writingInput"
@@ -57,9 +58,16 @@
 
       <div id="goodnightSignal" class="nw-goodnight" aria-hidden="true">晚安</div>
       <button id="clearTonight" class="nw-clear-tonight" type="button">清空今晚</button>
+      <section id="clearPanel" class="nw-clear-panel" aria-label="清空确认" aria-hidden="true">
+        <p class="nw-clear-question">清空今晚写下的内容？</p>
+        <div class="nw-clear-actions">
+          <button id="clearKeep" class="nw-clear-action nw-clear-keep" type="button">保留</button>
+          <button id="clearConfirm" class="nw-clear-action nw-clear-confirm" type="button">清空</button>
+        </div>
+      </section>
       <div id="saveStatus" class="nw-save-status" aria-live="polite">内容只保存在本机</div>
     </main>
 
-    <script src="app.js?v=20260703-keyword-scroll"></script>
+    <script src="app.js?v=20260706-clear-sheet"></script>
   </body>
 </html>
