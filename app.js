@@ -692,17 +692,24 @@ function setVisualState(text) {
 
   const glow = getGlow(text);
   const completeRatio = clamp((glow - 0.88) / 0.12, 0, 1);
-  const activeRatio = clamp(glow / 0.72, 0, 1);
-  const writingLight = lerp(0.06, 0.16, activeRatio);
-  const lineLight = lerp(0.05, 0.16, activeRatio);
-  writer.style.setProperty("--bg-r", Math.round(lerp(dailyAccent.start[0], dailyAccent.end[0], glow)));
-  writer.style.setProperty("--bg-g", Math.round(lerp(dailyAccent.start[1], dailyAccent.end[1], glow)));
-  writer.style.setProperty("--bg-b", Math.round(lerp(dailyAccent.start[2], dailyAccent.end[2], glow)));
-  writer.style.setProperty("--glow-alpha", lerp(0, 0.18, glow).toFixed(3));
+  const lampRatio = clamp(glow / 0.18, 0, 1);
+  const quietRatio = clamp((glow - 0.18) / 0.82, 0, 1);
+  const backgroundRatio = lerp(0, 0.38, lampRatio);
+  const writingLight = lerp(0.06, 0.132, lampRatio);
+  const lineLight = lerp(0.05, 0.112, lampRatio);
+  const glowAlpha = lerp(0, 0.13, lampRatio);
+  const textGlow = lerp(0, 0.5, lampRatio);
+  const vignetteAlpha = Math.max(completeRatio, quietRatio * 0.3);
+  writer.style.setProperty("--bg-r", Math.round(lerp(dailyAccent.start[0], dailyAccent.end[0], backgroundRatio)));
+  writer.style.setProperty("--bg-g", Math.round(lerp(dailyAccent.start[1], dailyAccent.end[1], backgroundRatio)));
+  writer.style.setProperty("--bg-b", Math.round(lerp(dailyAccent.start[2], dailyAccent.end[2], backgroundRatio)));
+  writer.style.setProperty("--glow-alpha", glowAlpha.toFixed(3));
+  writer.style.setProperty("--lamp-presence", lampRatio.toFixed(3));
   writer.style.setProperty("--writing-light", writingLight.toFixed(3));
   writer.style.setProperty("--line-light", lineLight.toFixed(3));
-  writer.style.setProperty("--text-glow", glow.toFixed(3));
-  writer.style.setProperty("--vignette-alpha", completeRatio.toFixed(3));
+  writer.style.setProperty("--text-glow", textGlow.toFixed(3));
+  writer.style.setProperty("--room-quiet", quietRatio.toFixed(3));
+  writer.style.setProperty("--vignette-alpha", vignetteAlpha.toFixed(3));
 
   updateKeywordState(text);
 

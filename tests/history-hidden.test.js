@@ -27,8 +27,8 @@ test("history list and detail are not rendered while hidden", () => {
 test("history assets use the current cache-busting version", () => {
   const html = readFileSync(join(__dirname, "..", "index.html"), "utf8");
 
-  assert.match(html, /styles\.css\?v=20260706-keyword-visible/);
-  assert.match(html, /app\.js\?v=20260706-clear-sheet/);
+  assert.match(html, /styles\.css\?v=20260706-lamp-field/);
+  assert.match(html, /app\.js\?v=20260706-lamp-field/);
   assert.match(html, /<link rel="icon" href="data:," \/>/);
 });
 
@@ -113,12 +113,61 @@ test("v3 visual system uses a soft writing light instead of a hard paper card", 
   const js = readFileSync(join(__dirname, "..", "app.js"), "utf8");
 
   assert.doesNotMatch(html + css, /—|–/);
+  assert.match(css, /--lamp-presence:\s*0;/);
+  assert.match(css, /--room-quiet:\s*0;/);
   assert.match(css, /\.nw-glow::before[\s\S]*filter:\s*blur\(26px\)/);
+  assert.match(css, /\.nw-glow::before[\s\S]*var\(--lamp-presence\)/);
   assert.match(css, /\.nw-glow::after[\s\S]*linear-gradient\(90deg,\s*transparent,\s*rgba\(226,\s*204,\s*145,\s*var\(--line-light\)\),\s*transparent\)/);
-  assert.match(css, /\.night-writer\.has-text[\s\S]*--writing-light:\s*0\.16;/);
+  assert.doesNotMatch(css, /\.night-writer\.has-text[\s\S]*--writing-light:\s*0\.16;/);
   assert.match(css, /@keyframes writing-light-breathe/);
+  assert.match(js, /--lamp-presence/);
   assert.match(js, /--writing-light/);
   assert.match(js, /--line-light/);
+  assert.match(js, /--room-quiet/);
+});
+
+test("writing light switches on to a stable lamp field", () => {
+  const js = readFileSync(join(__dirname, "..", "app.js"), "utf8");
+  const source = [
+    "const COMPLETION_COUNT = 120;",
+    'const dailyAccent = { start: [7, 9, 16], end: [20, 11, 9] };',
+    "const state = {};",
+    "const writer = {",
+    "  classList: { toggle() {} },",
+    "  style: { setProperty(name, value) { state[name] = Number(value); } }",
+    "};",
+    "function updateKeywordState() {}",
+    "function showGoodnight() {}",
+    "function hideGoodnight() {}",
+    extractFunction(js, "getCharacterCount"),
+    extractFunction(js, "clamp"),
+    extractFunction(js, "lerp"),
+    extractFunction(js, "getGlow"),
+    extractFunction(js, "setVisualState"),
+    'setVisualState("");',
+    "globalThis.baseLight = state['--writing-light'];",
+    "globalThis.baseLamp = state['--lamp-presence'];",
+    'setVisualState("一".repeat(28));',
+    "globalThis.earlyLight = state['--writing-light'];",
+    "globalThis.earlyLine = state['--line-light'];",
+    "globalThis.earlyLamp = state['--lamp-presence'];",
+    'setVisualState("一".repeat(120));',
+    "globalThis.longLight = state['--writing-light'];",
+    "globalThis.longLine = state['--line-light'];",
+    "globalThis.longLamp = state['--lamp-presence'];",
+    "globalThis.roomQuiet = state['--room-quiet'];"
+  ].join("\n");
+  const context = { state: {}, Number };
+
+  vm.runInNewContext(source, context);
+
+  assert.equal(context.baseLamp, 0);
+  assert.ok(context.earlyLamp > 0.99);
+  assert.equal(context.longLamp, context.earlyLamp);
+  assert.ok(context.earlyLight - context.baseLight > 0.04);
+  assert.ok(Math.abs(context.longLight - context.earlyLight) <= 0.004);
+  assert.ok(Math.abs(context.longLine - context.earlyLine) <= 0.004);
+  assert.ok(context.roomQuiet > 0.9);
 });
 
 test("desktop writing area keeps the light field aligned to the left margin", () => {
@@ -127,6 +176,19 @@ test("desktop writing area keeps the light field aligned to the left margin", ()
   assert.match(
     css,
     /\.nw-textarea \{[\s\S]*padding:\s*clamp\(116px,\s*18vh,\s*180px\)\s+max\(var\(--content-x\),\s*calc\(100vw - var\(--content-x\) - 610px\)\)\s+calc\(88px \+ var\(--safe-bottom\) \+ var\(--keyboard-bottom\)\)\s+var\(--content-x\);/
+  );
+});
+
+test("main writing text uses a diary serif font stack", () => {
+  const css = readFileSync(join(__dirname, "..", "styles.css"), "utf8");
+
+  assert.match(
+    css,
+    /--diary-font:\s*"LXGW WenKai Screen",\s*"LXGW WenKai",\s*"Kaiti SC",\s*"STKaiti",\s*"KaiTi",\s*"FangSong",\s*"Songti SC",\s*"STSong",\s*"Noto Serif CJK SC",\s*serif;/
+  );
+  assert.match(
+    css,
+    /\.nw-textarea \{[\s\S]*font-family:\s*var\(--diary-font\);[\s\S]*font-weight:\s*400;[\s\S]*line-height:\s*2\.08;[\s\S]*letter-spacing:\s*0\.025em;/
   );
 });
 

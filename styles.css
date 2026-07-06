@@ -13,12 +13,15 @@
   --line-light: 0.06;
   --stage-breath: 0;
   --text-glow: 0;
+  --lamp-presence: 0;
+  --room-quiet: 0;
   --vignette-alpha: 0;
   --end-r: 18;
   --end-g: 9;
   --end-b: 11;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --keyboard-bottom: 0px;
+  --diary-font: "LXGW WenKai Screen", "LXGW WenKai", "Kaiti SC", "STKaiti", "KaiTi", "FangSong", "Songti SC", "STSong", "Noto Serif CJK SC", serif;
 }
 
 * {
@@ -47,8 +50,8 @@ textarea {
   height: 100dvh;
   overflow: hidden;
   background:
-    radial-gradient(ellipse 70% 72% at 34% 48%, rgba(31, 21, 21, 0.44), transparent 68%),
-    radial-gradient(ellipse 54% 64% at 86% 43%, rgba(18, 20, 33, 0.58), transparent 70%),
+    radial-gradient(ellipse 70% 72% at 34% 48%, rgba(31, 21, 21, calc(0.44 - var(--room-quiet) * 0.08)), transparent 68%),
+    radial-gradient(ellipse 54% 64% at 86% 43%, rgba(18, 20, 33, calc(0.58 - var(--room-quiet) * 0.12)), transparent 70%),
     linear-gradient(
       180deg,
       rgb(var(--bg-r), var(--bg-g), var(--bg-b)) 0%,
@@ -58,11 +61,6 @@ textarea {
   transition: background 2600ms ease;
   animation: night-entry 900ms ease both;
   isolation: isolate;
-}
-
-.night-writer.has-text {
-  --writing-light: 0.16;
-  --line-light: 0.16;
 }
 
 .night-writer::before {
@@ -76,7 +74,8 @@ textarea {
     radial-gradient(circle at 67% 16%, rgba(226, 204, 145, 0.1) 0 1px, transparent 1.5px),
     radial-gradient(circle at 82% 76%, rgba(114, 128, 164, 0.08) 0 1px, transparent 1.5px),
     radial-gradient(ellipse 72% 68% at 42% 42%, transparent 28%, rgba(3, 4, 9, 0.52) 100%);
-  opacity: 0.9;
+  opacity: calc(0.9 - var(--room-quiet) * 0.32);
+  transition: opacity 2600ms ease;
 }
 
 .night-writer::after {
@@ -118,11 +117,13 @@ textarea {
 .nw-glow::before {
   inset: -16% -12% -20%;
   background:
+    radial-gradient(ellipse 34% 24% at 31% 31%, rgba(255, 224, 154, calc(var(--lamp-presence) * 0.18)), transparent 68%),
+    radial-gradient(ellipse 28% 34% at 29% 41%, rgba(189, 119, 81, calc(var(--lamp-presence) * 0.1)), transparent 72%),
     radial-gradient(ellipse 42% 18% at 34% 30%, rgba(226, 204, 145, calc(var(--writing-light) + var(--stage-breath) * 0.05)), transparent 70%),
     radial-gradient(ellipse 56% 30% at 38% 46%, rgba(189, 119, 81, calc(var(--glow-alpha) + 0.06)), transparent 74%),
     linear-gradient(104deg, transparent 8%, rgba(226, 204, 145, calc(var(--writing-light) * 0.52)) 36%, rgba(189, 119, 81, calc(var(--writing-light) * 0.66)) 57%, transparent 78%);
   filter: blur(26px);
-  opacity: 0.88;
+  opacity: calc(0.88 - var(--room-quiet) * 0.06);
   transform: rotate(-6deg);
 }
 
@@ -135,14 +136,14 @@ textarea {
     linear-gradient(90deg, transparent, rgba(226, 204, 145, var(--line-light)), transparent) 0 0 / 100% 1px no-repeat,
     linear-gradient(90deg, transparent, rgba(226, 204, 145, calc(var(--line-light) * 0.76)), transparent) 0 86px / 100% 1px no-repeat,
     linear-gradient(90deg, transparent, rgba(226, 204, 145, calc(var(--line-light) * 0.54)), transparent) 0 172px / 100% 1px no-repeat;
-  opacity: 0.44;
+  opacity: calc(0.44 - var(--room-quiet) * 0.04);
   transform: rotate(-5deg);
 }
 
 .nw-vignette {
   z-index: 4;
   opacity: var(--vignette-alpha);
-  background: radial-gradient(ellipse 80% 78% at 45% 46%, transparent 36%, rgba(3, 4, 9, 0.58) 100%);
+  background: radial-gradient(ellipse 80% 78% at 45% 46%, transparent 36%, rgba(3, 4, 9, calc(0.58 + var(--room-quiet) * 0.08)) 100%);
   transition: opacity 3200ms ease;
 }
 
@@ -224,10 +225,11 @@ textarea {
   background: transparent;
   color: var(--paper-ink);
   caret-color: rgba(214, 169, 101, 0.86);
-  font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-family: var(--diary-font);
   font-size: clamp(19px, 4.8vw, 27px);
-  line-height: 2.04;
-  letter-spacing: 0.035em;
+  font-weight: 400;
+  line-height: 2.08;
+  letter-spacing: 0.025em;
   text-shadow:
     0 0 18px rgba(226, 204, 145, calc(var(--text-glow) * 0.12)),
     0 0 36px rgba(189, 119, 81, calc(var(--text-glow) * 0.16));
