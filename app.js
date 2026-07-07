@@ -816,7 +816,7 @@ function formatExportText(archive = loadArchive()) {
 }
 
 function getExportFilename(date = new Date()) {
-  return `今夜写点啥-${getEntryDate(date)}.txt`;
+  return `今晚写点啥-${getEntryDate(date)}.txt`;
 }
 
 function setExportLabel(message, duration = SAVE_STATUS_MS) {

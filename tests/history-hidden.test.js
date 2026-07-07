@@ -27,8 +27,8 @@ test("history list and detail are not rendered while hidden", () => {
 test("history assets use the current cache-busting version", () => {
   const html = readFileSync(join(__dirname, "..", "index.html"), "utf8");
 
-  assert.match(html, /styles\.css\?v=20260707-ui-wenkai/);
-  assert.match(html, /app\.js\?v=20260707-ui-wenkai/);
+  assert.match(html, /styles\.css\?v=20260707-title-fix/);
+  assert.match(html, /app\.js\?v=20260707-title-fix/);
   assert.match(html, /<link rel="icon" href="data:," \/>/);
 });
 
@@ -53,9 +53,10 @@ test("web visual refresh uses the v3 night room palette and mobile sheet", () =>
 test("product naming is consistently night-focused", () => {
   const html = readFileSync(join(__dirname, "..", "index.html"), "utf8");
 
-  assert.match(html, /<title>今夜写点啥<\/title>/);
-  assert.match(html, /content="今夜写点啥：/);
+  assert.match(html, /<title>今晚写点啥<\/title>/);
+  assert.match(html, /content="今晚写点啥：睡前脑子停不下来时，写几句，内容只保存在本机。"/);
   assert.doesNotMatch(html, /今天写点啥/);
+  assert.doesNotMatch(html, /今夜写点啥/);
 });
 
 test("history and save affordances have quiet visible UI hooks", () => {
@@ -306,6 +307,6 @@ test("web export body starts with the user's dated writing, not the product titl
   vm.runInNewContext(source, context);
 
   assert.equal(context.result, "\uFEFF2026年6月21日\n这是用户真正写下的内容\n");
-  assert.doesNotMatch(context.result, /今夜写点啥|导出时间/);
+  assert.doesNotMatch(context.result, /今[夜晚]写点啥|导出时间/);
   assert.doesNotMatch(js, /navigator\.share\(\{ files: \[file\], title:/);
 });
