@@ -45,14 +45,18 @@ test("page uses native navigation title instead of a custom navigation canvas", 
 test("mini program loads the same bundled UI writing font as web", () => {
   const page = appWxss.match(/page\s*\{([^}]*)\}/)?.[1] || "";
   const intro = block(".intro");
+  const keyword = block(".keyword");
+  const textarea = block(".textarea");
   const historyTitle = block(".history-title");
   const clearQuestion = block(".clear-question");
 
   assert.match(appWxss, /@font-face\s*\{/);
   assert.match(appWxss, /font-family:\s*"Night UI WenKai";/);
-  assert.match(appWxss, /url\("assets\/fonts\/lxgw-wenkai-screen-ui\.woff2"\)/);
+  assert.match(appWxss, /url\("data:font\/woff2;base64,[A-Za-z0-9+/=]+"\)/);
   assert.match(page, /font-family:\s*"Night UI WenKai",\s*"LXGW WenKai Screen",\s*"Kaiti SC",\s*"STKaiti",\s*"KaiTi",\s*serif;/);
   assert.match(intro, /font-family:\s*"Night UI WenKai"/);
+  assert.match(keyword, /font-family:\s*"Night UI WenKai"/);
+  assert.match(textarea, /font-family:\s*"Night UI WenKai"/);
   assert.match(historyTitle, /font-family:\s*"Night UI WenKai"/);
   assert.match(clearQuestion, /font-family:\s*"Night UI WenKai"/);
 });
@@ -84,13 +88,16 @@ test("history trigger stays in the web top-right position above the writing surf
   const panelZ = Number(panel.match(/z-index:\s*(\d+);/)?.[1]);
 
   assert.doesNotMatch(wxml, /<button\s+class="history-dot"/);
-  assert.match(wxml, /<view\s+class="history-dot\s+\{\{historyOpen \? 'returning' : ''\}\}"/);
+  assert.match(wxml, /<view\s+class="history-dot"/);
+  assert.doesNotMatch(wxml, /historyOpen \? 'returning'/);
+  assert.doesNotMatch(wxml, /historyOpen \? '返回'/);
+  assert.doesNotMatch(wxss, /\.history-dot\.returning/);
   assert.doesNotMatch(wxml, /historyChromeStyle/);
-  assert.match(wxml, /class="history-dot\s+\{\{historyOpen \? 'returning' : ''\}\}"[^>]*catchtap="toggleHistory"/);
-  assert.match(wxml, /aria-label="\{\{historyOpen \? '返回当前输入' : '查看过去 7 天'\}\}"/);
+  assert.match(wxml, /class="history-dot"[^>]*catchtap="toggleHistory"/);
+  assert.match(wxml, /aria-label="查看过去 7 天"/);
   assert.match(wxml, /class="history-dot-mark"[^>]*wx:if="\{\{!historyOpen\}\}"/);
   assert.match(wxml, /historyHintVisible \|\| historyOpen/);
-  assert.match(wxml, /\{\{historyOpen \? '返回' : '过去 7 天'\}\}/);
+  assert.match(wxml, /<text\s+class="history-hint[^"]*">\s*过去 7 天\s*<\/text>/);
   assert.match(historyDot, /top:\s*52rpx;/);
   assert.match(historyDot, /right:\s*36rpx;/);
   assert.match(historyDot, /min-width:\s*208rpx;/);
@@ -105,8 +112,6 @@ test("history trigger stays in the web top-right position above the writing surf
   assert.match(historyHint, /right:\s*52rpx;/);
   assert.match(historyHint, /opacity:\s*0\.58;/);
   assert.match(historyHintVisible, /opacity:\s*0\.78;/);
-  assert.match(block(".history-dot.returning .history-hint"), /right:\s*0;/);
-  assert.match(block(".history-dot.returning .history-hint"), /opacity:\s*0\.86;/);
   assert.ok(historyZ > textareaZ);
   assert.ok(historyZ > scrimZ);
   assert.ok(scrimZ > textareaZ);
@@ -143,7 +148,7 @@ test("primary interactions stop bubbling like the web implementation", () => {
   assert.equal(keywordTags.length, 1);
   assert.match(keywordTags[0], /role="button"/);
   assert.match(keywordTags[0], /catchtap="insertKeyword"/);
-  assert.match(wxml, /class="keyword\s+keyword-\{\{index\}\}[^"]*"[\s\S]*catchtap="insertKeyword"/);
+  assert.match(wxml, /class="keyword\s+keyword-\{\{index\}\}\s+\{\{item\.visible \? 'visible' : ''\}\}[^"]*"[\s\S]*catchtap="insertKeyword"/);
   assert.match(wxml, /class="history-panel"[^>]*catchtap="noop"/);
   assert.match(wxml, /class="clear-panel\s+\{\{clearConfirmOpen \? 'open' : ''\}\}"[^>]*catchtap="noop"/);
   assert.match(wxml, /class="history-close"[^>]*catchtap="closeHistory"/);
@@ -233,7 +238,9 @@ test("writing surface keeps web copy and layered visual elements", () => {
   const keyword2 = block(".keyword-2");
   const keyword3 = block(".keyword-3");
   const keyword4 = block(".keyword-4");
-  const hasTextKeyword = block(".has-text .keyword");
+  const hasTextKeyword = block(".has-text .keyword.visible");
+  const keyword = block(".keyword");
+  const visibleKeyword = block(".keyword.visible");
   const hasTextActiveKeyword = block(".has-text .keyword.active");
 
   assert.match(wxml, /class="glow"/);
@@ -259,11 +266,16 @@ test("writing surface keeps web copy and layered visual elements", () => {
   assert.match(intro, /display:\s*flex;/);
   assert.match(intro, /flex-direction:\s*column;/);
   assert.match(intro, /font-family:\s*"Night UI WenKai"/);
-  assert.match(textarea, /padding:\s*152rpx var\(--content-x\) 176rpx;/);
+  assert.match(textarea, /padding:\s*240rpx var\(--content-x\) 176rpx;/);
   assert.match(textarea, /color:\s*#e2cc91;/);
   assert.match(textarea, /caret-color:\s*rgba\(214,\s*169,\s*101,\s*0\.86\);/);
-  assert.match(textarea, /font-family:\s*"Songti SC",\s*"STSong",\s*"LXGW WenKai Screen"/);
+  assert.match(textarea, /font-family:\s*"Night UI WenKai",\s*"LXGW WenKai Screen",\s*"Kaiti SC"/);
   assert.match(placeholder, /font-family:\s*"Night UI WenKai"/);
+  assert.match(keyword, /opacity:\s*0;/);
+  assert.match(keyword, /transform:\s*translate3d\(0,\s*8rpx,\s*0\);/);
+  assert.match(keyword, /transition:[\s\S]*color\s+1800ms\s+ease[\s\S]*opacity\s+1600ms\s+ease[\s\S]*text-shadow\s+1800ms\s+ease[\s\S]*transform\s+1600ms\s+ease/);
+  assert.match(visibleKeyword, /opacity:\s*1;/);
+  assert.match(visibleKeyword, /transform:\s*translate3d\(0,\s*0,\s*0\);/);
   assert.match(keyword0, /top:\s*25%(?:\s*!important)?;/);
   assert.match(keyword0, /left:\s*var\(--content-x\)(?:\s*!important)?;/);
   assert.match(keyword1, /top:\s*23%(?:\s*!important)?;/);

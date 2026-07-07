@@ -11,7 +11,7 @@
     <view
       wx:for="{{keywordItems}}"
       wx:key="word"
-      class="keyword keyword-{{index}} {{item.active ? 'active' : ''}}"
+      class="keyword keyword-{{index}} {{item.visible ? 'visible' : ''}} {{item.active ? 'active' : ''}}"
       role="button"
       aria-label="插入关键词：{{item.word}}"
       data-keyword="{{item.word}}"
@@ -41,9 +41,9 @@
     bindselectionchange="onSelectionChange"
   ></textarea>
 
-  <view class="history-dot {{historyOpen ? 'returning' : ''}}" aria-label="{{historyOpen ? '返回当前输入' : '查看过去 7 天'}}" catchtap="toggleHistory">
+  <view class="history-dot" aria-label="查看过去 7 天" catchtap="toggleHistory">
     <view class="history-dot-mark" wx:if="{{!historyOpen}}"></view>
-    <text class="history-hint {{historyHintVisible || historyOpen ? 'visible' : ''}}">{{historyOpen ? '返回' : '过去 7 天'}}</text>
+    <text class="history-hint {{historyHintVisible || historyOpen ? 'visible' : ''}}">过去 7 天</text>
   </view>
 
   <view class="history-scrim" wx:if="{{historyOpen}}" bindtap="closeHistory"></view>

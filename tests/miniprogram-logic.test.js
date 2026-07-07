@@ -373,6 +373,20 @@ test("uses web parity keyword generation instead of a fixed keyword list", () =>
   assert.notDeepEqual(firstDay, secondDay);
 });
 
+test("keyword items keep web visible state and active removal behavior", () => {
+  const hidden = __test__.toKeywordItems(["西瓜", "晚风"], "", false);
+  const visibleActive = __test__.toKeywordItems(["西瓜", "晚风"], "今晚想吃西瓜", true);
+  const visibleRemoved = __test__.toKeywordItems(["西瓜", "晚风"], "今晚想吃水果", true);
+
+  assert.equal(hidden[0].visible, false);
+  assert.equal(hidden[0].active, false);
+  assert.equal(visibleActive[0].visible, true);
+  assert.equal(visibleActive[0].active, true);
+  assert.equal(visibleActive[1].active, false);
+  assert.equal(visibleRemoved[0].visible, true);
+  assert.equal(visibleRemoved[0].active, false);
+});
+
 test("builds web parity visual state from daily accent and character count", () => {
   const blank = __test__.getVisualState("", new Date(2026, 5, 16, 22, 30));
   const firstChar = __test__.getVisualState("写", new Date(2026, 5, 16, 22, 30));

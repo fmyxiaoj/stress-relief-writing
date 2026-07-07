@@ -336,9 +336,10 @@ function toHistoryView(entries, now = new Date()) {
   }));
 }
 
-function toKeywordItems(keywords, text) {
+function toKeywordItems(keywords, text, visible = false) {
   return keywords.map((word, index) => ({
     word,
+    visible,
     active: text.includes(word),
     styleText: positionToStyle(KEYWORD_POSITIONS[index])
   }));
@@ -388,7 +389,7 @@ function toWriterStyle(visual) {
   ].join(" ");
 }
 
-function buildState(text, archive = [], now = new Date(), keywords = getKeywordCandidates(now)) {
+function buildState(text, archive = [], now = new Date(), keywords = getKeywordCandidates(now), keywordsVisible = false) {
   const entry = createEntry(text, now, keywords);
   const historyEntries = getHistoryEntries(archive, now);
   const visual = getVisualState(text, now);
@@ -397,7 +398,7 @@ function buildState(text, archive = [], now = new Date(), keywords = getKeywordC
     entry,
     visual,
     writerStyle: toWriterStyle(visual),
-    keywordItems: toKeywordItems(keywords, text),
+    keywordItems: toKeywordItems(keywords, text, keywordsVisible),
     history: toHistoryView(historyEntries, now),
     historyEmpty: historyEntries.length === 0,
     hasText: text.trim().length > 0,
@@ -456,6 +457,7 @@ if (typeof Page === "function") {
       detailOpen: false,
       detailEntry: null,
       historyHintVisible: false,
+      keywordsVisible: false,
       saveStatus: "内容只保存在本机",
       saveStatusVisible: false,
       clearConfirmOpen: false,
@@ -474,6 +476,7 @@ if (typeof Page === "function") {
       const text = saved?.date === getEntryDate(now) && typeof saved.text === "string" ? saved.text : "";
       this.activeEntryDate = text ? saved.date : null;
       this.refreshState(text, { announce: false, now });
+      this.keywordRevealTimer = setTimeout(() => this.showKeywords(), 520);
       this.showHistoryHint();
     },
 
@@ -482,6 +485,7 @@ if (typeof Page === "function") {
       clearTimeout(this.saveStatusTimer);
       clearTimeout(this.historyHintTimer);
       clearTimeout(this.clearConfirmTimer);
+      clearTimeout(this.keywordRevealTimer);
     },
 
     onInput(event) {
@@ -549,6 +553,16 @@ if (typeof Page === "function") {
     },
 
     noop() {},
+
+    showKeywords() {
+      if (this.data.keywordsVisible) {
+        return;
+      }
+      this.setData({
+        keywordsVisible: true,
+        keywordItems: toKeywordItems(this.keywords || [], this.data.text, true)
+      });
+    },
 
     openDetail(event) {
       const date = event.currentTarget.dataset.date;
@@ -700,7 +714,7 @@ if (typeof Page === "function") {
 
     refreshState(text, options = {}) {
       const now = options.now || new Date();
-      const state = buildState(text, this.archive || [], now, this.keywords || getKeywordCandidates(now));
+      const state = buildState(text, this.archive || [], now, this.keywords || getKeywordCandidates(now), this.data.keywordsVisible);
 
       if (options.saveNow !== false) {
         const savedEntry = writeStorage(STORAGE_KEY, state.entry);
