@@ -193,10 +193,13 @@ test("writing surface keeps web copy and layered visual elements", () => {
   assert.match(wxml, /class="glow"/);
   assert.match(wxml, /class="vignette"/);
   assert.match(wxml, /placeholder="写下今晚脑子里放不下的东西…"/);
-  assert.match(wxml, />本机保存 · 不登录 · 不上传</);
+  assert.match(wxml, /<view class="intro" wx:if="\{\{!hasText\}\}">\s*<text>本机保存<\/text>\s*<text>不登录，不上传<\/text>\s*<\/view>/);
+  assert.doesNotMatch(wxml, /本机保存 · 不登录 · 不上传/);
   assert.match(writer, /--content-x:\s*60rpx;/);
   assert.match(writer, /--intro-x:\s*72rpx;/);
   assert.match(intro, /left:\s*var\(--intro-x\);/);
+  assert.match(intro, /display:\s*flex;/);
+  assert.match(intro, /flex-direction:\s*column;/);
   assert.match(textarea, /padding:\s*152rpx var\(--content-x\) 176rpx;/);
   assert.match(keyword0, /top:\s*25%(?:\s*!important)?;/);
   assert.match(keyword0, /left:\s*var\(--content-x\)(?:\s*!important)?;/);

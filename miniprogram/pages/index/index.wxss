@@ -80,6 +80,9 @@ button::after {
   right: 284rpx;
   left: var(--intro-x);
   z-index: 22;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
   color: rgba(132, 145, 181, 0.66);
   font-size: 26rpx;
   letter-spacing: 1rpx;

@@ -2,7 +2,10 @@
   <view class="glow" aria-hidden="true"></view>
   <view class="vignette" aria-hidden="true"></view>
   <view class="stars" aria-hidden="true"></view>
-  <view class="intro" wx:if="{{!hasText}}">本机保存 · 不登录 · 不上传</view>
+  <view class="intro" wx:if="{{!hasText}}">
+    <text>本机保存</text>
+    <text>不登录，不上传</text>
+  </view>
 
   <view class="keyword-layer">
     <view
