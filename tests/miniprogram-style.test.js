@@ -131,6 +131,9 @@ test("history panel matches the web mobile bottom drawer", () => {
   const panelBefore = block(".history-panel::before");
   const panelOpen = block(".history-panel.open");
   const top = block(".history-top");
+  const close = block(".history-close");
+  const closeBefore = block(".history-close::before");
+  const closeAfter = block(".history-close::after");
   const text = block(".history-text");
   const detail = block(".history-detail");
 
@@ -158,6 +161,12 @@ test("history panel matches the web mobile bottom drawer", () => {
   assert.match(panelOpen, /visibility:\s*visible;/);
   assert.match(top, /display:\s*grid;/);
   assert.match(top, /grid-template-columns:\s*88rpx 1fr 88rpx;/);
+  assert.match(close, /position:\s*relative;/);
+  assert.match(close, /opacity:\s*0\.86;/);
+  assert.match(closeBefore, /width:\s*34rpx;/);
+  assert.match(closeBefore, /height:\s*2rpx;/);
+  assert.match(closeBefore, /rotate\(45deg\)/);
+  assert.match(closeAfter, /rotate\(-45deg\)/);
   assert.match(text, /display:\s*-webkit-box;/);
   assert.match(text, /-webkit-line-clamp:\s*4;/);
   assert.match(detail, /overflow:\s*auto;/);
@@ -174,12 +183,16 @@ test("primary interactions stop bubbling like the web implementation", () => {
   assert.match(wxml, /class="keyword\s+keyword-\{\{index\}\}\s+\{\{item\.visible \? 'visible' : ''\}\}[^"]*\{\{item\.releasing \? 'releasing' : ''\}\}[^"]*"[\s\S]*catchtap="insertKeyword"/);
   assert.match(wxml, /class="history-panel\s+\{\{historyOpen \? 'open' : ''\}\}"[^>]*catchtap="noop"/);
   assert.match(wxml, /class="clear-panel\s+\{\{clearConfirmOpen \? 'open' : ''\}\}"[^>]*catchtap="noop"/);
-  assert.match(wxml, /class="history-close"[^>]*catchtap="closeHistory"/);
-  assert.match(wxml, /class="history-back"[^>]*catchtap="backToHistory"/);
+  assert.match(wxml, /<view\s+class="history-close"[^>]*role="button"[^>]*catchtap="closeHistory"/);
+  assert.match(wxml, /<view\s+class="history-back"[^>]*role="button"[^>]*catchtap="backToHistory"/);
+  assert.doesNotMatch(wxml, /<button\s+class="history-close"/);
+  assert.doesNotMatch(wxml, /<button\s+class="history-back"/);
+  assert.doesNotMatch(wxml, />×<\/button>/);
   assert.match(wxml, /class="history-row"[\s\S]*catchtap="openDetail"/);
   assert.match(wxml, /class="clear-tonight[^"]*"[^>]*catchtap="requestClearTonight"/);
-  assert.match(wxml, /class="clear-action clear-keep"[^>]*catchtap="cancelClearTonight"/);
-  assert.match(wxml, /class="clear-action clear-confirm"[^>]*catchtap="confirmClearTonight"/);
+  assert.match(wxml, /<view\s+class="clear-action clear-keep"[^>]*role="button"[^>]*catchtap="cancelClearTonight"[\s\S]*<text class="clear-action-label">保留<\/text>/);
+  assert.match(wxml, /<view\s+class="clear-action clear-confirm"[^>]*role="button"[^>]*catchtap="confirmClearTonight"[\s\S]*<text class="clear-action-label">清空<\/text>/);
+  assert.doesNotMatch(wxml, /<button\s+class="clear-action/);
   assert.match(wxml, /focus="\{\{inputFocused\}\}"/);
   assert.match(wxml, /cursor="\{\{cursor\}\}"/);
   assert.match(wxml, /selection-start="\{\{cursor\}\}"/);
@@ -215,6 +228,7 @@ test("bottom states match the web positions and animation model", () => {
   const clearPanelOpen = block(".clear-panel.open");
   const clearActions = block(".clear-actions");
   const clearAction = block(".clear-action");
+  const clearActionLabel = block(".clear-action-label");
   const clearConfirm = block(".clear-confirm");
   const save = block(".save-status");
   const pulse = wxss.match(/@keyframes\s+goodnight-pulse\s*\{[\s\S]*?\n\}/)?.[0] || "";
@@ -247,7 +261,13 @@ test("bottom states match the web positions and animation model", () => {
   assert.match(clearAction, /flex:\s*1 1 0;/);
   assert.match(clearAction, /width:\s*auto;/);
   assert.match(clearAction, /min-width:\s*0;/);
+  assert.match(clearAction, /display:\s*flex;/);
+  assert.match(clearAction, /align-items:\s*center;/);
+  assert.match(clearAction, /justify-content:\s*center;/);
   assert.match(clearAction, /box-sizing:\s*border-box;/);
+  assert.match(clearAction, /font-family:\s*"Night UI WenKai"/);
+  assert.match(clearActionLabel, /font-family:\s*"Night UI WenKai"/);
+  assert.match(clearActionLabel, /font-size:\s*26rpx;/);
   assert.match(clearConfirm, /background:\s*rgba\(189,\s*119,\s*81,\s*0\.14\);/);
   assert.doesNotMatch(clearConfirm, /margin-left:/);
   assert.match(save, /bottom:\s*116rpx;/);
@@ -319,8 +339,9 @@ test("writing surface keeps web copy and layered visual elements", () => {
   assert.match(keyword4, /right:\s*10%(?:\s*!important)?;/);
   assert.match(hasTextKeyword, /opacity:\s*0\.46;/);
   assert.match(hasTextActiveKeyword, /opacity:\s*1;/);
-  assert.match(keywordReleasing, /animation:\s*keyword-release\s+760ms\s+ease\s+both;/);
+  assert.match(keywordReleasing, /animation:\s*keyword-release\s+1800ms\s+ease\s+both;/);
   assert.match(wxss, /@keyframes\s+keyword-release/);
+  assert.match(wxss, /@keyframes\s+keyword-release[\s\S]*35%\s*\{[\s\S]*rgba\(226,\s*204,\s*145,\s*0\.94\)[\s\S]*0 0 84rpx/);
   assert.match(wxml, /style="\{\{writerStyle\}\}"/);
   assert.match(wxss, /@keyframes\s+lamp-switch-on/);
   assert.match(wxss, /@keyframes\s+writing-light-breathe/);

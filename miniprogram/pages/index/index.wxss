@@ -227,7 +227,7 @@ button::after {
 }
 
 .keyword.releasing {
-  animation: keyword-release 760ms ease both;
+  animation: keyword-release 1800ms ease both;
 }
 
 .textarea {
@@ -407,15 +407,77 @@ button::after {
 .history-back,
 .history-close,
 .history-back-placeholder {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 88rpx;
   height: 88rpx;
   color: rgba(132, 145, 181, 0.76);
-  font-size: 48rpx;
-  line-height: 60rpx;
-  text-align: center;
+  opacity: 0.86;
+}
+
+.history-back-placeholder {
+  opacity: 0;
+}
+
+.history-close {
+  position: relative;
+  opacity: 0.86;
+}
+
+.history-back::before,
+.history-back::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 34rpx;
+  height: 2rpx;
+  border-radius: 999rpx;
+  background: rgba(147, 158, 196, 0.86);
+  box-shadow: 0 0 18rpx rgba(132, 145, 181, 0.14);
+  content: "";
+}
+
+.history-close::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 34rpx;
+  height: 2rpx;
+  border-radius: 999rpx;
+  background: rgba(147, 158, 196, 0.86);
+  box-shadow: 0 0 18rpx rgba(132, 145, 181, 0.14);
+  content: "";
+  transform: translate3d(-50%, -50%, 0) rotate(45deg);
+}
+
+.history-close::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 34rpx;
+  height: 2rpx;
+  border-radius: 999rpx;
+  background: rgba(147, 158, 196, 0.86);
+  box-shadow: 0 0 18rpx rgba(132, 145, 181, 0.14);
+  content: "";
+  transform: translate3d(-50%, -50%, 0) rotate(-45deg);
+}
+
+.history-back::before,
+.history-back::after {
+  left: 34rpx;
+  width: 28rpx;
+  transform-origin: 2rpx 50%;
+}
+
+.history-back::before {
+  transform: translate3d(0, -50%, 0) rotate(35deg);
+}
+
+.history-back::after {
+  transform: translate3d(0, -50%, 0) rotate(-35deg);
 }
 
 .history-list,
@@ -607,6 +669,9 @@ button::after {
   min-width: 0;
   min-height: 88rpx;
   box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 0;
   border-radius: 16rpx;
   color: rgba(226, 204, 145, 0.78);
@@ -614,6 +679,15 @@ button::after {
   font-family: "Night UI WenKai", "LXGW WenKai Screen", "Kaiti SC", "STKaiti", "KaiTi", serif;
   font-size: 26rpx;
   letter-spacing: 2rpx;
+}
+
+.clear-action-label {
+  display: block;
+  color: inherit;
+  font-family: "Night UI WenKai", "LXGW WenKai Screen", "Kaiti SC", "STKaiti", "KaiTi", serif;
+  font-size: 26rpx;
+  letter-spacing: 2rpx;
+  line-height: 1;
 }
 
 .clear-confirm {
@@ -679,6 +753,24 @@ button::after {
     text-shadow:
       0 0 28rpx rgba(255, 195, 90, 0.44),
       0 0 56rpx rgba(255, 145, 45, 0.2);
+    transform: translate3d(0, 0, 0);
+  }
+
+  35% {
+    color: rgba(226, 204, 145, 0.94);
+    opacity: 0.92;
+    text-shadow:
+      0 0 34rpx rgba(226, 204, 145, 0.42),
+      0 0 84rpx rgba(198, 136, 82, 0.2);
+    transform: translate3d(0, 0, 0);
+  }
+
+  68% {
+    color: rgba(183, 170, 132, 0.62);
+    opacity: 0.66;
+    text-shadow:
+      0 0 24rpx rgba(214, 169, 101, 0.22),
+      0 0 54rpx rgba(198, 136, 82, 0.1);
     transform: translate3d(0, 0, 0);
   }
 

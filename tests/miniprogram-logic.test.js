@@ -438,7 +438,53 @@ test("refreshing text marks a removed active keyword for the release animation",
   assert.equal(page.data.keywordItems[0].active, false);
   assert.equal(page.data.keywordItems[0].releasing, true);
   assert.equal(page.data.keywordItems[1].releasing, false);
-  assert.ok(scheduledDelay >= 700);
+  assert.ok(scheduledDelay >= 1700);
+});
+
+test("release animation survives the save refresh while it is still fading", () => {
+  let pageConfig;
+  const source = readFileSync("miniprogram/pages/index/index.js", "utf8");
+  const context = {
+    Page(config) {
+      pageConfig = config;
+    },
+    wx: {
+      getStorageSync() {},
+      setStorageSync() {},
+      removeStorageSync() {}
+    },
+    clearTimeout,
+    console,
+    setTimeout() {
+      return 7;
+    }
+  };
+  vm.runInNewContext(source, context);
+
+  const page = {
+    ...pageConfig,
+    data: {
+      text: "今晚想吃水果",
+      keywordItems: [
+        { word: "西瓜", visible: true, active: false, releasing: true },
+        { word: "晚风", visible: true, active: false, releasing: false }
+      ],
+      keywordsVisible: true,
+      saveStatus: "",
+      saveStatusVisible: false,
+      clearConfirmOpen: false
+    },
+    archive: [],
+    keywords: ["西瓜", "晚风"],
+    setData(update) {
+      this.data = { ...this.data, ...update };
+    }
+  };
+
+  page.refreshState("今晚想吃水果", { saveNow: false, now: new Date(2026, 5, 16, 22, 30) });
+
+  assert.equal(page.data.keywordItems[0].active, false);
+  assert.equal(page.data.keywordItems[0].releasing, true);
 });
 
 test("builds web parity visual state from daily accent and character count", () => {

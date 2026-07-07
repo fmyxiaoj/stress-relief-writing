@@ -49,10 +49,10 @@
   <view class="history-scrim {{historyOpen ? 'open' : ''}}" catchtap="closeHistory"></view>
   <view class="history-panel {{historyOpen ? 'open' : ''}}" catchtap="noop">
     <view class="history-top">
-      <button class="history-back" wx:if="{{detailOpen}}" aria-label="返回历史列表" hover-class="none" catchtap="backToHistory">‹</button>
+      <view class="history-back" wx:if="{{detailOpen}}" role="button" aria-label="返回历史列表" hover-class="none" catchtap="backToHistory"></view>
       <view class="history-back-placeholder" wx:else></view>
       <text class="history-title">{{detailOpen ? '完整记录' : '过去 7 天'}}</text>
-      <button class="history-close" aria-label="关闭历史" hover-class="none" catchtap="closeHistory">×</button>
+      <view class="history-close" role="button" aria-label="关闭历史" hover-class="none" catchtap="closeHistory"></view>
     </view>
 
     <scroll-view class="history-list" wx:if="{{!detailOpen}}" scroll-y>
@@ -87,8 +87,12 @@
   <view class="clear-panel {{clearConfirmOpen ? 'open' : ''}}" catchtap="noop">
     <text class="clear-question">清空今晚写下的内容？</text>
     <view class="clear-actions">
-      <button class="clear-action clear-keep" hover-class="none" catchtap="cancelClearTonight">保留</button>
-      <button class="clear-action clear-confirm" hover-class="none" catchtap="confirmClearTonight">清空</button>
+      <view class="clear-action clear-keep" role="button" hover-class="none" catchtap="cancelClearTonight">
+        <text class="clear-action-label">保留</text>
+      </view>
+      <view class="clear-action clear-confirm" role="button" hover-class="none" catchtap="confirmClearTonight">
+        <text class="clear-action-label">清空</text>
+      </view>
     </view>
   </view>
   <view class="save-status {{saveStatusVisible ? 'visible' : ''}}">{{saveStatus}}</view>

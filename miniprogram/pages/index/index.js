@@ -336,14 +336,15 @@ function toHistoryView(entries, now = new Date()) {
   }));
 }
 
-function toKeywordItems(keywords, text, visible = false, previousActiveWords = []) {
+function toKeywordItems(keywords, text, visible = false, previousActiveWords = [], previousReleasingWords = []) {
   const previousActive = previousActiveWords instanceof Set ? previousActiveWords : new Set(previousActiveWords);
+  const previousReleasing = previousReleasingWords instanceof Set ? previousReleasingWords : new Set(previousReleasingWords);
 
   return keywords.map((word, index) => ({
     word,
     visible,
     active: text.includes(word),
-    releasing: visible && previousActive.has(word) && !text.includes(word),
+    releasing: visible && !text.includes(word) && (previousActive.has(word) || previousReleasing.has(word)),
     styleText: positionToStyle(KEYWORD_POSITIONS[index])
   }));
 }
@@ -352,6 +353,14 @@ function getActiveKeywordWords(keywordItems = []) {
   return new Set(
     keywordItems
       .filter((item) => item?.active)
+      .map((item) => item.word)
+  );
+}
+
+function getReleasingKeywordWords(keywordItems = []) {
+  return new Set(
+    keywordItems
+      .filter((item) => item?.releasing)
       .map((item) => item.word)
   );
 }
@@ -406,7 +415,8 @@ function buildState(
   now = new Date(),
   keywords = getKeywordCandidates(now),
   keywordsVisible = false,
-  previousActiveWords = []
+  previousActiveWords = [],
+  previousReleasingWords = []
 ) {
   const entry = createEntry(text, now, keywords);
   const historyEntries = getHistoryEntries(archive, now);
@@ -416,7 +426,7 @@ function buildState(
     entry,
     visual,
     writerStyle: toWriterStyle(visual),
-    keywordItems: toKeywordItems(keywords, text, keywordsVisible, previousActiveWords),
+    keywordItems: toKeywordItems(keywords, text, keywordsVisible, previousActiveWords, previousReleasingWords),
     history: toHistoryView(historyEntries, now),
     historyEmpty: historyEntries.length === 0,
     hasText: text.trim().length > 0,
@@ -745,13 +755,15 @@ if (typeof Page === "function") {
     refreshState(text, options = {}) {
       const now = options.now || new Date();
       const previousActiveWords = getActiveKeywordWords(this.data.keywordItems || []);
+      const previousReleasingWords = getReleasingKeywordWords(this.data.keywordItems || []);
       const state = buildState(
         text,
         this.archive || [],
         now,
         this.keywords || getKeywordCandidates(now),
         this.data.keywordsVisible,
-        previousActiveWords
+        previousActiveWords,
+        previousReleasingWords
       );
       const hasReleasingKeyword = state.keywordItems.some((item) => item.releasing);
 
@@ -782,7 +794,7 @@ if (typeof Page === "function") {
       });
 
       if (hasReleasingKeyword) {
-        this.keywordReleaseTimer = setTimeout(() => this.clearKeywordRelease(), 760);
+        this.keywordReleaseTimer = setTimeout(() => this.clearKeywordRelease(), 1800);
       }
     },
 
@@ -811,6 +823,7 @@ if (typeof module !== "undefined") {
       getVisualState,
       toKeywordItems,
       getActiveKeywordWords,
+      getReleasingKeywordWords,
       buildState,
       insertTextAtCursor
     }
