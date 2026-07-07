@@ -336,13 +336,24 @@ function toHistoryView(entries, now = new Date()) {
   }));
 }
 
-function toKeywordItems(keywords, text, visible = false) {
+function toKeywordItems(keywords, text, visible = false, previousActiveWords = []) {
+  const previousActive = previousActiveWords instanceof Set ? previousActiveWords : new Set(previousActiveWords);
+
   return keywords.map((word, index) => ({
     word,
     visible,
     active: text.includes(word),
+    releasing: visible && previousActive.has(word) && !text.includes(word),
     styleText: positionToStyle(KEYWORD_POSITIONS[index])
   }));
+}
+
+function getActiveKeywordWords(keywordItems = []) {
+  return new Set(
+    keywordItems
+      .filter((item) => item?.active)
+      .map((item) => item.word)
+  );
 }
 
 function getVisualState(text, date = new Date()) {
@@ -389,7 +400,14 @@ function toWriterStyle(visual) {
   ].join(" ");
 }
 
-function buildState(text, archive = [], now = new Date(), keywords = getKeywordCandidates(now), keywordsVisible = false) {
+function buildState(
+  text,
+  archive = [],
+  now = new Date(),
+  keywords = getKeywordCandidates(now),
+  keywordsVisible = false,
+  previousActiveWords = []
+) {
   const entry = createEntry(text, now, keywords);
   const historyEntries = getHistoryEntries(archive, now);
   const visual = getVisualState(text, now);
@@ -398,7 +416,7 @@ function buildState(text, archive = [], now = new Date(), keywords = getKeywordC
     entry,
     visual,
     writerStyle: toWriterStyle(visual),
-    keywordItems: toKeywordItems(keywords, text, keywordsVisible),
+    keywordItems: toKeywordItems(keywords, text, keywordsVisible, previousActiveWords),
     history: toHistoryView(historyEntries, now),
     historyEmpty: historyEntries.length === 0,
     hasText: text.trim().length > 0,
@@ -486,6 +504,7 @@ if (typeof Page === "function") {
       clearTimeout(this.historyHintTimer);
       clearTimeout(this.clearConfirmTimer);
       clearTimeout(this.keywordRevealTimer);
+      clearTimeout(this.keywordReleaseTimer);
     },
 
     onInput(event) {
@@ -561,6 +580,17 @@ if (typeof Page === "function") {
       this.setData({
         keywordsVisible: true,
         keywordItems: toKeywordItems(this.keywords || [], this.data.text, true)
+      });
+    },
+
+    clearKeywordRelease() {
+      const keywordItems = this.data.keywordItems || [];
+      if (!keywordItems.some((item) => item.releasing)) {
+        return;
+      }
+
+      this.setData({
+        keywordItems: keywordItems.map((item) => ({ ...item, releasing: false }))
       });
     },
 
@@ -714,7 +744,18 @@ if (typeof Page === "function") {
 
     refreshState(text, options = {}) {
       const now = options.now || new Date();
-      const state = buildState(text, this.archive || [], now, this.keywords || getKeywordCandidates(now), this.data.keywordsVisible);
+      const previousActiveWords = getActiveKeywordWords(this.data.keywordItems || []);
+      const state = buildState(
+        text,
+        this.archive || [],
+        now,
+        this.keywords || getKeywordCandidates(now),
+        this.data.keywordsVisible,
+        previousActiveWords
+      );
+      const hasReleasingKeyword = state.keywordItems.some((item) => item.releasing);
+
+      clearTimeout(this.keywordReleaseTimer);
 
       if (options.saveNow !== false) {
         const savedEntry = writeStorage(STORAGE_KEY, state.entry);
@@ -739,6 +780,10 @@ if (typeof Page === "function") {
         hasText: state.hasText,
         goodnightVisible: state.goodnightVisible
       });
+
+      if (hasReleasingKeyword) {
+        this.keywordReleaseTimer = setTimeout(() => this.clearKeywordRelease(), 760);
+      }
     },
 
     resetLocalDataForTesting() {
@@ -765,6 +810,7 @@ if (typeof module !== "undefined") {
       getKeywordCandidates,
       getVisualState,
       toKeywordItems,
+      getActiveKeywordWords,
       buildState,
       insertTextAtCursor
     }

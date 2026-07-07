@@ -62,13 +62,20 @@ test("mini program loads the same bundled UI writing font as web", () => {
 });
 
 test("history overlay dims the writing surface behind the panel", () => {
-  assert.match(wxml, /class="history-scrim"/);
+  assert.match(wxml, /class="history-scrim\s+\{\{historyOpen \? 'open' : ''\}\}"/);
+  assert.doesNotMatch(wxml, /class="history-scrim"[^>]*wx:if="\{\{historyOpen\}\}"/);
   const scrim = block(".history-scrim");
+  const scrimOpen = block(".history-scrim.open");
   const dimmed = block(".history-open .textarea,\n.history-open .keyword-layer,\n.history-open .intro,\n.history-open .clear-tonight,\n.history-open .save-status,\n.clear-open .textarea,\n.clear-open .keyword-layer,\n.clear-open .intro,\n.clear-open .clear-tonight,\n.clear-open .save-status");
 
   assert.match(scrim, /position:\s*absolute;/);
   assert.match(scrim, /z-index:\s*50;/);
   assert.match(scrim, /background:\s*rgba\(2,\s*3,\s*8,\s*0\.42\)/);
+  assert.match(scrim, /opacity:\s*0;/);
+  assert.match(scrim, /pointer-events:\s*none;/);
+  assert.match(scrim, /transition:\s*opacity\s+360ms\s+ease;/);
+  assert.match(scrimOpen, /opacity:\s*1;/);
+  assert.match(scrimOpen, /pointer-events:\s*auto;/);
   assert.match(dimmed, /opacity:\s*0\.18;/);
   assert.match(dimmed, /filter:\s*blur\(0\.6px\);/);
 });
@@ -116,23 +123,39 @@ test("history trigger stays in the web top-right position above the writing surf
   assert.ok(historyZ > scrimZ);
   assert.ok(scrimZ > textareaZ);
   assert.ok(panelZ > scrimZ);
-  assert.ok(historyZ > panelZ);
+  assert.ok(panelZ > historyZ);
 });
 
-test("history panel matches the web right-top floating panel", () => {
+test("history panel matches the web mobile bottom drawer", () => {
   const panel = block(".history-panel");
+  const panelBefore = block(".history-panel::before");
+  const panelOpen = block(".history-panel.open");
   const top = block(".history-top");
   const text = block(".history-text");
   const detail = block(".history-detail");
 
   assert.doesNotMatch(wxml, /historyPanelStyle/);
-  assert.match(panel, /top:\s*96rpx;/);
+  assert.match(wxml, /class="history-panel\s+\{\{historyOpen \? 'open' : ''\}\}"[^>]*catchtap="noop"/);
+  assert.doesNotMatch(wxml, /class="history-panel"[^>]*wx:if="\{\{historyOpen\}\}"/);
+  assert.match(panel, /top:\s*auto;/);
   assert.match(panel, /right:\s*24rpx;/);
+  assert.match(panel, /bottom:\s*24rpx;/);
   assert.match(panel, /left:\s*24rpx;/);
   assert.match(panel, /width:\s*auto;/);
-  assert.match(panel, /max-width:\s*680rpx;/);
-  assert.match(panel, /border-radius:\s*16rpx;/);
+  assert.match(panel, /max-height:\s*min\(62vh,\s*calc\(100vh - 224rpx\)\);/);
+  assert.match(panel, /border-radius:\s*16rpx 16rpx 12rpx 12rpx;/);
   assert.match(panel, /box-shadow:/);
+  assert.match(panel, /opacity:\s*0;/);
+  assert.match(panel, /pointer-events:\s*none;/);
+  assert.match(panel, /transform:\s*translate3d\(0,\s*28rpx,\s*0\);/);
+  assert.match(panel, /visibility:\s*hidden;/);
+  assert.match(panel, /transition:[\s\S]*opacity\s+320ms\s+ease[\s\S]*transform\s+420ms\s+ease[\s\S]*visibility\s+320ms\s+ease/);
+  assert.match(panelBefore, /width:\s*84rpx;/);
+  assert.match(panelBefore, /height:\s*6rpx;/);
+  assert.match(panelOpen, /opacity:\s*1;/);
+  assert.match(panelOpen, /pointer-events:\s*auto;/);
+  assert.match(panelOpen, /transform:\s*translate3d\(0,\s*0,\s*0\);/);
+  assert.match(panelOpen, /visibility:\s*visible;/);
   assert.match(top, /display:\s*grid;/);
   assert.match(top, /grid-template-columns:\s*88rpx 1fr 88rpx;/);
   assert.match(text, /display:\s*-webkit-box;/);
@@ -148,8 +171,8 @@ test("primary interactions stop bubbling like the web implementation", () => {
   assert.equal(keywordTags.length, 1);
   assert.match(keywordTags[0], /role="button"/);
   assert.match(keywordTags[0], /catchtap="insertKeyword"/);
-  assert.match(wxml, /class="keyword\s+keyword-\{\{index\}\}\s+\{\{item\.visible \? 'visible' : ''\}\}[^"]*"[\s\S]*catchtap="insertKeyword"/);
-  assert.match(wxml, /class="history-panel"[^>]*catchtap="noop"/);
+  assert.match(wxml, /class="keyword\s+keyword-\{\{index\}\}\s+\{\{item\.visible \? 'visible' : ''\}\}[^"]*\{\{item\.releasing \? 'releasing' : ''\}\}[^"]*"[\s\S]*catchtap="insertKeyword"/);
+  assert.match(wxml, /class="history-panel\s+\{\{historyOpen \? 'open' : ''\}\}"[^>]*catchtap="noop"/);
   assert.match(wxml, /class="clear-panel\s+\{\{clearConfirmOpen \? 'open' : ''\}\}"[^>]*catchtap="noop"/);
   assert.match(wxml, /class="history-close"[^>]*catchtap="closeHistory"/);
   assert.match(wxml, /class="history-back"[^>]*catchtap="backToHistory"/);
@@ -210,16 +233,23 @@ test("bottom states match the web positions and animation model", () => {
   assert.match(clearPanel, /bottom:\s*24rpx;/);
   assert.match(clearPanel, /border-radius:\s*16rpx 16rpx 12rpx 12rpx;/);
   assert.match(clearPanel, /background:\s*linear-gradient/);
+  assert.match(clearPanel, /opacity:\s*0;/);
+  assert.match(clearPanel, /pointer-events:\s*none;/);
   assert.match(clearPanel, /transform:\s*translate3d\(0,\s*28rpx,\s*0\);/);
+  assert.match(clearPanel, /visibility:\s*hidden;/);
+  assert.match(clearPanel, /transition:[\s\S]*opacity\s+260ms\s+ease[\s\S]*transform\s+360ms\s+ease[\s\S]*visibility\s+260ms\s+ease/);
   assert.match(clearPanelOpen, /opacity:\s*1;/);
   assert.match(clearPanelOpen, /pointer-events:\s*auto;/);
+  assert.match(clearPanelOpen, /visibility:\s*visible;/);
   assert.match(clearActions, /display:\s*flex;/);
+  assert.match(clearActions, /gap:\s*20rpx;/);
   assert.match(clearAction, /min-height:\s*88rpx;/);
   assert.match(clearAction, /flex:\s*1 1 0;/);
+  assert.match(clearAction, /width:\s*auto;/);
   assert.match(clearAction, /min-width:\s*0;/);
   assert.match(clearAction, /box-sizing:\s*border-box;/);
   assert.match(clearConfirm, /background:\s*rgba\(189,\s*119,\s*81,\s*0\.14\);/);
-  assert.match(clearConfirm, /margin-left:\s*20rpx;/);
+  assert.doesNotMatch(clearConfirm, /margin-left:/);
   assert.match(save, /bottom:\s*116rpx;/);
   assert.match(pulse, /drop-shadow/);
 });
@@ -240,6 +270,7 @@ test("writing surface keeps web copy and layered visual elements", () => {
   const keyword4 = block(".keyword-4");
   const hasTextKeyword = block(".has-text .keyword.visible");
   const keyword = block(".keyword");
+  const keywordReleasing = block(".keyword.releasing");
   const visibleKeyword = block(".keyword.visible");
   const hasTextActiveKeyword = block(".has-text .keyword.active");
 
@@ -288,6 +319,8 @@ test("writing surface keeps web copy and layered visual elements", () => {
   assert.match(keyword4, /right:\s*10%(?:\s*!important)?;/);
   assert.match(hasTextKeyword, /opacity:\s*0\.46;/);
   assert.match(hasTextActiveKeyword, /opacity:\s*1;/);
+  assert.match(keywordReleasing, /animation:\s*keyword-release\s+760ms\s+ease\s+both;/);
+  assert.match(wxss, /@keyframes\s+keyword-release/);
   assert.match(wxml, /style="\{\{writerStyle\}\}"/);
   assert.match(wxss, /@keyframes\s+lamp-switch-on/);
   assert.match(wxss, /@keyframes\s+writing-light-breathe/);

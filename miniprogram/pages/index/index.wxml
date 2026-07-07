@@ -11,7 +11,7 @@
     <view
       wx:for="{{keywordItems}}"
       wx:key="word"
-      class="keyword keyword-{{index}} {{item.visible ? 'visible' : ''}} {{item.active ? 'active' : ''}}"
+      class="keyword keyword-{{index}} {{item.visible ? 'visible' : ''}} {{item.active ? 'active' : ''}} {{item.releasing ? 'releasing' : ''}}"
       role="button"
       aria-label="插入关键词：{{item.word}}"
       data-keyword="{{item.word}}"
@@ -46,8 +46,8 @@
     <text class="history-hint {{historyHintVisible || historyOpen ? 'visible' : ''}}">过去 7 天</text>
   </view>
 
-  <view class="history-scrim" wx:if="{{historyOpen}}" bindtap="closeHistory"></view>
-  <view class="history-panel" wx:if="{{historyOpen}}" catchtap="noop">
+  <view class="history-scrim {{historyOpen ? 'open' : ''}}" catchtap="closeHistory"></view>
+  <view class="history-panel {{historyOpen ? 'open' : ''}}" catchtap="noop">
     <view class="history-top">
       <button class="history-back" wx:if="{{detailOpen}}" aria-label="返回历史列表" hover-class="none" catchtap="backToHistory">‹</button>
       <view class="history-back-placeholder" wx:else></view>

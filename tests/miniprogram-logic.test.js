@@ -376,15 +376,69 @@ test("uses web parity keyword generation instead of a fixed keyword list", () =>
 test("keyword items keep web visible state and active removal behavior", () => {
   const hidden = __test__.toKeywordItems(["西瓜", "晚风"], "", false);
   const visibleActive = __test__.toKeywordItems(["西瓜", "晚风"], "今晚想吃西瓜", true);
-  const visibleRemoved = __test__.toKeywordItems(["西瓜", "晚风"], "今晚想吃水果", true);
+  const visibleRemoved = __test__.toKeywordItems(["西瓜", "晚风"], "今晚想吃水果", true, ["西瓜"]);
 
   assert.equal(hidden[0].visible, false);
   assert.equal(hidden[0].active, false);
+  assert.equal(hidden[0].releasing, false);
   assert.equal(visibleActive[0].visible, true);
   assert.equal(visibleActive[0].active, true);
+  assert.equal(visibleActive[0].releasing, false);
   assert.equal(visibleActive[1].active, false);
   assert.equal(visibleRemoved[0].visible, true);
   assert.equal(visibleRemoved[0].active, false);
+  assert.equal(visibleRemoved[0].releasing, true);
+});
+
+test("refreshing text marks a removed active keyword for the release animation", () => {
+  let pageConfig;
+  let scheduledDelay;
+  const source = readFileSync("miniprogram/pages/index/index.js", "utf8");
+  const context = {
+    Page(config) {
+      pageConfig = config;
+    },
+    wx: {
+      getStorageSync() {},
+      setStorageSync() {},
+      removeStorageSync() {}
+    },
+    clearTimeout,
+    console,
+    setTimeout(callback, delay) {
+      scheduledDelay = delay;
+      return 7;
+    }
+  };
+  vm.runInNewContext(source, context);
+
+  const page = {
+    ...pageConfig,
+    data: {
+      text: "今晚想吃西瓜",
+      keywordItems: [
+        { word: "西瓜", visible: true, active: true },
+        { word: "晚风", visible: true, active: false }
+      ],
+      keywordsVisible: true,
+      saveStatus: "",
+      saveStatusVisible: false,
+      clearConfirmOpen: false
+    },
+    archive: [],
+    keywords: ["西瓜", "晚风"],
+    setData(update) {
+      this.data = { ...this.data, ...update };
+    }
+  };
+
+  page.refreshState("今晚想吃水果", { saveNow: false, now: new Date(2026, 5, 16, 22, 30) });
+
+  assert.equal(page.data.keywordItems[0].word, "西瓜");
+  assert.equal(page.data.keywordItems[0].active, false);
+  assert.equal(page.data.keywordItems[0].releasing, true);
+  assert.equal(page.data.keywordItems[1].releasing, false);
+  assert.ok(scheduledDelay >= 700);
 });
 
 test("builds web parity visual state from daily accent and character count", () => {
