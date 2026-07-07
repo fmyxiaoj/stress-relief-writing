@@ -1,4 +1,4 @@
-<view class="writer {{hasText ? 'has-text' : ''}} {{historyOpen ? 'history-open' : ''}}" style="{{writerStyle}}" bindtap="focusWriting">
+<view class="writer {{hasText ? 'has-text' : ''}} {{historyOpen ? 'history-open' : ''}} {{clearConfirmOpen ? 'clear-open' : ''}}" style="{{writerStyle}}" bindtap="focusWriting">
   <view class="glow" aria-hidden="true"></view>
   <view class="vignette" aria-hidden="true"></view>
   <view class="stars" aria-hidden="true"></view>
@@ -83,8 +83,13 @@
   </view>
 
   <view class="goodnight" wx:if="{{goodnightVisible}}">晚安</view>
-  <button class="clear-tonight {{clearConfirming ? 'confirming' : ''}}" wx:if="{{hasText}}" hover-class="none" catchtap="requestClearTonight">
-    {{clearConfirming ? '再点确认' : '清空今晚'}}
-  </button>
+  <button class="clear-tonight" wx:if="{{hasText}}" hover-class="none" catchtap="requestClearTonight">清空今晚</button>
+  <view class="clear-panel {{clearConfirmOpen ? 'open' : ''}}" catchtap="noop">
+    <text class="clear-question">清空今晚写下的内容？</text>
+    <view class="clear-actions">
+      <button class="clear-action clear-keep" hover-class="none" catchtap="cancelClearTonight">保留</button>
+      <button class="clear-action clear-confirm" hover-class="none" catchtap="confirmClearTonight">清空</button>
+    </view>
+  </view>
   <view class="save-status {{saveStatusVisible ? 'visible' : ''}}">{{saveStatus}}</view>
 </view>

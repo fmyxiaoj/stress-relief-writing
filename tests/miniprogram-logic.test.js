@@ -143,7 +143,7 @@ test("keyword tap inserts at the cursor without blurring the writing input", () 
       inputFocused: true,
       saveStatus: "",
       saveStatusVisible: false,
-      clearConfirming: false
+      clearConfirmOpen: false
     },
     archive: [],
     keywords: ["西瓜", "风"],
@@ -192,7 +192,7 @@ test("selection changes update where the next keyword is inserted", () => {
       inputFocused: true,
       saveStatus: "",
       saveStatusVisible: false,
-      clearConfirming: false
+      clearConfirmOpen: false
     },
     archive: [],
     keywords: ["西瓜", "风"],
@@ -216,6 +216,59 @@ test("keyword tap focus handling does not force blur before refocusing", () => {
 
   assert.doesNotMatch(insertMethod, /refocusWritingInput/);
   assert.doesNotMatch(source, /refocusWritingInput/);
+});
+
+test("clear tonight uses the same bottom confirmation drawer as web", () => {
+  let pageConfig;
+  const calls = [];
+  const source = readFileSync("miniprogram/pages/index/index.js", "utf8");
+  const context = {
+    Page(config) {
+      pageConfig = config;
+    },
+    wx: {
+      getStorageSync() {},
+      setStorageSync() {},
+      removeStorageSync() {}
+    },
+    clearTimeout,
+    console,
+    setTimeout() {
+      return 1;
+    }
+  };
+  vm.runInNewContext(source, context);
+
+  const page = {
+    ...pageConfig,
+    data: {
+      text: "今晚有点累",
+      hasText: true,
+      historyOpen: true,
+      clearConfirmOpen: false,
+      saveStatus: "",
+      saveStatusVisible: false
+    },
+    setData(update) {
+      calls.push(update);
+      this.data = { ...this.data, ...update };
+    },
+    closeHistory() {
+      this.setData({ historyOpen: false });
+    },
+    focusWriting() {}
+  };
+
+  page.requestClearTonight();
+  assert.equal(page.data.clearConfirmOpen, true);
+  assert.equal(page.data.historyOpen, false);
+  assert.equal(
+    calls.some((call) => call.clearConfirming === true),
+    false
+  );
+
+  page.cancelClearTonight();
+  assert.equal(page.data.clearConfirmOpen, false);
 });
 
 test("export action writes user content and opens WeChat file sharing", () => {
@@ -321,11 +374,30 @@ test("uses web parity keyword generation instead of a fixed keyword list", () =>
 });
 
 test("builds web parity visual state from daily accent and character count", () => {
+  const blank = __test__.getVisualState("", new Date(2026, 5, 16, 22, 30));
+  const firstChar = __test__.getVisualState("写", new Date(2026, 5, 16, 22, 30));
+  const longText = __test__.getVisualState("写".repeat(120), new Date(2026, 5, 16, 22, 30));
   const state = __test__.buildState("写".repeat(60), [], new Date(2026, 5, 16, 22, 30));
 
   assert.equal(state.goodnightVisible, false);
+  assert.equal(blank.lampPresence, "0.000");
+  assert.equal(blank.writingLight, "0.060");
+  assert.equal(blank.glowAlpha, "0.000");
+  assert.equal(firstChar.lampPresence, "1.000");
+  assert.equal(firstChar.writingLight, "0.132");
+  assert.equal(firstChar.lineLight, "0.112");
+  assert.equal(firstChar.glowAlpha, "0.130");
+  assert.equal(firstChar.textGlow, "0.500");
+  assert.equal(firstChar.roomQuiet, "0.000");
+  assert.equal(longText.roomQuiet, "1.000");
+  assert.equal(longText.vignetteAlpha, "1.000");
   assert.equal(state.visual.textGlow, "0.500");
+  assert.equal(state.visual.glowAlpha, "0.130");
   assert.match(state.writerStyle, /--bg-r:\s*\d+;/);
-  assert.match(state.writerStyle, /--glow-alpha:\s*0\.090;/);
+  assert.match(state.writerStyle, /--lamp-presence:\s*1\.000;/);
+  assert.match(state.writerStyle, /--writing-light:\s*0\.132;/);
+  assert.match(state.writerStyle, /--line-light:\s*0\.112;/);
+  assert.match(state.writerStyle, /--room-quiet:\s*0\.390;/);
+  assert.match(state.writerStyle, /--glow-alpha:\s*0\.130;/);
   assert.equal(state.keywordItems.length, 5);
 });

@@ -1,8 +1,15 @@
+@font-face {
+  font-family: "Night UI WenKai";
+  font-style: normal;
+  font-weight: 400;
+  src: url("assets/fonts/lxgw-wenkai-screen-ui.woff2") format("woff2");
+}
+
 page {
   min-height: 100vh;
-  background: #07090f;
-  color: #c0af87;
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #05060b;
+  color: #e2cc91;
+  font-family: "Night UI WenKai", "LXGW WenKai Screen", "Kaiti SC", "STKaiti", "KaiTi", serif;
 }
 
 button,

@@ -346,18 +346,26 @@ function toKeywordItems(keywords, text) {
 
 function getVisualState(text, date = new Date()) {
   const dailyAccent = getDailyAccent(date);
+  const hasWriting = text.trim().length > 0;
   const glow = getGlow(text);
   const completeRatio = clamp((glow - 0.88) / 0.12, 0, 1);
+  const lampRatio = hasWriting ? 1 : 0;
+  const quietRatio = clamp((glow - 0.18) / 0.82, 0, 1);
+  const backgroundRatio = lerp(0, 0.38, lampRatio);
   return {
-    bgR: Math.round(lerp(dailyAccent.start[0], dailyAccent.end[0], glow)),
-    bgG: Math.round(lerp(dailyAccent.start[1], dailyAccent.end[1], glow)),
-    bgB: Math.round(lerp(dailyAccent.start[2], dailyAccent.end[2], glow)),
+    bgR: Math.round(lerp(dailyAccent.start[0], dailyAccent.end[0], backgroundRatio)),
+    bgG: Math.round(lerp(dailyAccent.start[1], dailyAccent.end[1], backgroundRatio)),
+    bgB: Math.round(lerp(dailyAccent.start[2], dailyAccent.end[2], backgroundRatio)),
     endR: dailyAccent.end[0],
     endG: dailyAccent.end[1],
     endB: dailyAccent.end[2],
-    glowAlpha: lerp(0, 0.18, glow).toFixed(3),
-    textGlow: glow.toFixed(3),
-    vignetteAlpha: completeRatio.toFixed(3),
+    glowAlpha: lerp(0, 0.13, lampRatio).toFixed(3),
+    lampPresence: lampRatio.toFixed(3),
+    writingLight: lerp(0.06, 0.132, lampRatio).toFixed(3),
+    lineLight: lerp(0.05, 0.112, lampRatio).toFixed(3),
+    textGlow: lerp(0, 0.5, lampRatio).toFixed(3),
+    roomQuiet: quietRatio.toFixed(3),
+    vignetteAlpha: Math.max(completeRatio, quietRatio * 0.3).toFixed(3),
     glow
   };
 }
@@ -371,7 +379,11 @@ function toWriterStyle(visual) {
     `--end-g: ${visual.endG};`,
     `--end-b: ${visual.endB};`,
     `--glow-alpha: ${visual.glowAlpha};`,
+    `--lamp-presence: ${visual.lampPresence};`,
+    `--writing-light: ${visual.writingLight};`,
+    `--line-light: ${visual.lineLight};`,
     `--text-glow: ${visual.textGlow};`,
+    `--room-quiet: ${visual.roomQuiet};`,
     `--vignette-alpha: ${visual.vignetteAlpha};`
   ].join(" ");
 }
@@ -446,7 +458,7 @@ if (typeof Page === "function") {
       historyHintVisible: false,
       saveStatus: "内容只保存在本机",
       saveStatusVisible: false,
-      clearConfirming: false,
+      clearConfirmOpen: false,
       hasText: false,
       goodnightVisible: false,
       inputFocused: false,
@@ -580,16 +592,35 @@ if (typeof Page === "function") {
         return;
       }
 
-      if (this.data.clearConfirming) {
-        this.clearTonightEntry();
-        return;
+      this.setClearConfirmOpen(true);
+    },
+
+    setClearConfirmOpen(open) {
+      clearTimeout(this.clearConfirmTimer);
+      const update = { clearConfirmOpen: open };
+
+      if (open && this.data.historyOpen) {
+        update.historyOpen = false;
+        update.detailOpen = false;
+        update.detailEntry = null;
       }
 
-      this.setData({
-        clearConfirming: true
-      });
-      clearTimeout(this.clearConfirmTimer);
-      this.clearConfirmTimer = setTimeout(() => this.resetClearConfirmation(), CLEAR_CONFIRM_MS);
+      if (this.data.clearConfirmOpen !== open || update.historyOpen === false) {
+        this.setData(update);
+      }
+
+      if (open) {
+        this.clearConfirmTimer = setTimeout(() => this.resetClearConfirmation(), CLEAR_CONFIRM_MS);
+      }
+    },
+
+    cancelClearTonight() {
+      this.setClearConfirmOpen(false);
+      this.focusWriting();
+    },
+
+    confirmClearTonight() {
+      this.clearTonightEntry();
     },
 
     clearTonightEntry() {
@@ -602,8 +633,8 @@ if (typeof Page === "function") {
 
     resetClearConfirmation() {
       clearTimeout(this.clearConfirmTimer);
-      if (this.data.clearConfirming) {
-        this.setData({ clearConfirming: false });
+      if (this.data.clearConfirmOpen) {
+        this.setData({ clearConfirmOpen: false });
       }
     },
 
@@ -690,7 +721,7 @@ if (typeof Page === "function") {
         historyEmpty: state.historyEmpty,
         saveStatus: options.status || this.data.saveStatus,
         saveStatusVisible: Boolean(options.status) || this.data.saveStatusVisible,
-        clearConfirming: false,
+        clearConfirmOpen: false,
         hasText: state.hasText,
         goodnightVisible: state.goodnightVisible
       });

@@ -3,6 +3,7 @@ const fs = require("node:fs");
 const test = require("node:test");
 
 const wxss = fs.readFileSync("miniprogram/pages/index/index.wxss", "utf8");
+const appWxss = fs.readFileSync("miniprogram/app.wxss", "utf8");
 const wxml = fs.readFileSync("miniprogram/pages/index/index.wxml", "utf8");
 const pageConfig = JSON.parse(fs.readFileSync("miniprogram/pages/index/index.json", "utf8"));
 const appConfig = JSON.parse(fs.readFileSync("miniprogram/app.json", "utf8"));
@@ -41,10 +42,25 @@ test("page uses native navigation title instead of a custom navigation canvas", 
   assert.match(block(".writer"), /animation:\s*night-entry\s+900ms\s+ease\s+both;/);
 });
 
+test("mini program loads the same bundled UI writing font as web", () => {
+  const page = appWxss.match(/page\s*\{([^}]*)\}/)?.[1] || "";
+  const intro = block(".intro");
+  const historyTitle = block(".history-title");
+  const clearQuestion = block(".clear-question");
+
+  assert.match(appWxss, /@font-face\s*\{/);
+  assert.match(appWxss, /font-family:\s*"Night UI WenKai";/);
+  assert.match(appWxss, /url\("assets\/fonts\/lxgw-wenkai-screen-ui\.woff2"\)/);
+  assert.match(page, /font-family:\s*"Night UI WenKai",\s*"LXGW WenKai Screen",\s*"Kaiti SC",\s*"STKaiti",\s*"KaiTi",\s*serif;/);
+  assert.match(intro, /font-family:\s*"Night UI WenKai"/);
+  assert.match(historyTitle, /font-family:\s*"Night UI WenKai"/);
+  assert.match(clearQuestion, /font-family:\s*"Night UI WenKai"/);
+});
+
 test("history overlay dims the writing surface behind the panel", () => {
   assert.match(wxml, /class="history-scrim"/);
   const scrim = block(".history-scrim");
-  const dimmed = block(".history-open .textarea,\n.history-open .keyword-layer,\n.history-open .intro,\n.history-open .clear-tonight,\n.history-open .save-status");
+  const dimmed = block(".history-open .textarea,\n.history-open .keyword-layer,\n.history-open .intro,\n.history-open .clear-tonight,\n.history-open .save-status,\n.clear-open .textarea,\n.clear-open .keyword-layer,\n.clear-open .intro,\n.clear-open .clear-tonight,\n.clear-open .save-status");
 
   assert.match(scrim, /position:\s*absolute;/);
   assert.match(scrim, /z-index:\s*50;/);
@@ -122,17 +138,20 @@ test("history panel matches the web right-top floating panel", () => {
 test("primary interactions stop bubbling like the web implementation", () => {
   const keywordTags = wxml.match(/<view\b[^>]*class="keyword\s[^"]*"[^>]*>/g) || [];
 
-  assert.match(wxml, /class="writer[^"]*"[^>]*bindtap="focusWriting"/);
+  assert.match(wxml, /class="writer[^"]*\{\{clearConfirmOpen \? 'clear-open' : ''\}\}[^"]*"[^>]*bindtap="focusWriting"/);
   assert.doesNotMatch(wxml, /<button\b[^>]*class="keyword/);
   assert.equal(keywordTags.length, 1);
   assert.match(keywordTags[0], /role="button"/);
   assert.match(keywordTags[0], /catchtap="insertKeyword"/);
   assert.match(wxml, /class="keyword\s+keyword-\{\{index\}\}[^"]*"[\s\S]*catchtap="insertKeyword"/);
   assert.match(wxml, /class="history-panel"[^>]*catchtap="noop"/);
+  assert.match(wxml, /class="clear-panel\s+\{\{clearConfirmOpen \? 'open' : ''\}\}"[^>]*catchtap="noop"/);
   assert.match(wxml, /class="history-close"[^>]*catchtap="closeHistory"/);
   assert.match(wxml, /class="history-back"[^>]*catchtap="backToHistory"/);
   assert.match(wxml, /class="history-row"[\s\S]*catchtap="openDetail"/);
   assert.match(wxml, /class="clear-tonight[^"]*"[^>]*catchtap="requestClearTonight"/);
+  assert.match(wxml, /class="clear-action clear-keep"[^>]*catchtap="cancelClearTonight"/);
+  assert.match(wxml, /class="clear-action clear-confirm"[^>]*catchtap="confirmClearTonight"/);
   assert.match(wxml, /focus="\{\{inputFocused\}\}"/);
   assert.match(wxml, /cursor="\{\{cursor\}\}"/);
   assert.match(wxml, /selection-start="\{\{cursor\}\}"/);
@@ -164,9 +183,17 @@ test("history footer exposes a quiet export action without native button flash",
 test("bottom states match the web positions and animation model", () => {
   const goodnight = block(".goodnight");
   const clear = block(".clear-tonight");
+  const clearPanel = block(".clear-panel");
+  const clearPanelOpen = block(".clear-panel.open");
+  const clearActions = block(".clear-actions");
+  const clearAction = block(".clear-action");
+  const clearConfirm = block(".clear-confirm");
   const save = block(".save-status");
   const pulse = wxss.match(/@keyframes\s+goodnight-pulse\s*\{[\s\S]*?\n\}/)?.[0] || "";
 
+  assert.match(wxml, /class="clear-panel \{\{clearConfirmOpen \? 'open' : ''\}\}"/);
+  assert.match(wxml, /<text class="clear-question">清空今晚写下的内容？<\/text>/);
+  assert.match(wxml, /<view class="clear-actions">/);
   assert.match(goodnight, /bottom:\s*56rpx;/);
   assert.match(goodnight, /animation:\s*goodnight-pulse\s+3000ms\s+ease-in-out\s+infinite;/);
   assert.match(clear, /bottom:\s*48rpx;/);
@@ -174,14 +201,33 @@ test("bottom states match the web positions and animation model", () => {
   assert.match(clear, /min-width:\s*176rpx;/);
   assert.match(clear, /min-height:\s*88rpx;/);
   assert.match(clear, /display:\s*flex;/);
+  assert.match(clearPanel, /position:\s*absolute;/);
+  assert.match(clearPanel, /bottom:\s*24rpx;/);
+  assert.match(clearPanel, /border-radius:\s*16rpx 16rpx 12rpx 12rpx;/);
+  assert.match(clearPanel, /background:\s*linear-gradient/);
+  assert.match(clearPanel, /transform:\s*translate3d\(0,\s*28rpx,\s*0\);/);
+  assert.match(clearPanelOpen, /opacity:\s*1;/);
+  assert.match(clearPanelOpen, /pointer-events:\s*auto;/);
+  assert.match(clearActions, /display:\s*flex;/);
+  assert.match(clearAction, /min-height:\s*88rpx;/);
+  assert.match(clearAction, /flex:\s*1 1 0;/);
+  assert.match(clearAction, /min-width:\s*0;/);
+  assert.match(clearAction, /box-sizing:\s*border-box;/);
+  assert.match(clearConfirm, /background:\s*rgba\(189,\s*119,\s*81,\s*0\.14\);/);
+  assert.match(clearConfirm, /margin-left:\s*20rpx;/);
   assert.match(save, /bottom:\s*116rpx;/);
   assert.match(pulse, /drop-shadow/);
 });
 
 test("writing surface keeps web copy and layered visual elements", () => {
   const writer = block(".writer");
+  const glow = block(".glow");
+  const glowBefore = block(".glow::before");
+  const glowAfter = block(".glow::after");
+  const vignette = block(".vignette");
   const intro = block(".intro");
   const textarea = block(".textarea");
+  const placeholder = block(".placeholder");
   const keyword0 = block(".keyword-0");
   const keyword1 = block(".keyword-1");
   const keyword2 = block(".keyword-2");
@@ -197,10 +243,27 @@ test("writing surface keeps web copy and layered visual elements", () => {
   assert.doesNotMatch(wxml, /本机保存 · 不登录 · 不上传/);
   assert.match(writer, /--content-x:\s*60rpx;/);
   assert.match(writer, /--intro-x:\s*72rpx;/);
+  assert.match(writer, /--writing-light:\s*0\.06;/);
+  assert.match(writer, /--line-light:\s*0\.06;/);
+  assert.match(writer, /--lamp-presence:\s*0;/);
+  assert.match(writer, /--room-quiet:\s*0;/);
+  assert.match(writer, /radial-gradient\(ellipse 70% 72% at 34% 48%/);
+  assert.match(glow, /background:\s*transparent;/);
+  assert.match(glowBefore, /radial-gradient\(ellipse 34% 24% at 31% 31%,\s*rgba\(255,\s*224,\s*154,\s*calc\(var\(--lamp-presence\) \* 0\.18\)\)/);
+  assert.match(glowBefore, /linear-gradient\(104deg/);
+  assert.match(glowBefore, /transform:\s*rotate\(-6deg\);/);
+  assert.match(glowAfter, /linear-gradient\(90deg,\s*transparent,\s*rgba\(226,\s*204,\s*145,\s*var\(--line-light\)\),\s*transparent\)/);
+  assert.match(glowAfter, /transform:\s*rotate\(-5deg\);/);
+  assert.match(vignette, /rgba\(3,\s*4,\s*9,\s*calc\(0\.58 \+ var\(--room-quiet\) \* 0\.08\)\)/);
   assert.match(intro, /left:\s*var\(--intro-x\);/);
   assert.match(intro, /display:\s*flex;/);
   assert.match(intro, /flex-direction:\s*column;/);
+  assert.match(intro, /font-family:\s*"Night UI WenKai"/);
   assert.match(textarea, /padding:\s*152rpx var\(--content-x\) 176rpx;/);
+  assert.match(textarea, /color:\s*#e2cc91;/);
+  assert.match(textarea, /caret-color:\s*rgba\(214,\s*169,\s*101,\s*0\.86\);/);
+  assert.match(textarea, /font-family:\s*"Songti SC",\s*"STSong",\s*"LXGW WenKai Screen"/);
+  assert.match(placeholder, /font-family:\s*"Night UI WenKai"/);
   assert.match(keyword0, /top:\s*25%(?:\s*!important)?;/);
   assert.match(keyword0, /left:\s*var\(--content-x\)(?:\s*!important)?;/);
   assert.match(keyword1, /top:\s*23%(?:\s*!important)?;/);
@@ -211,7 +274,10 @@ test("writing surface keeps web copy and layered visual elements", () => {
   assert.match(keyword3, /left:\s*var\(--content-x\)(?:\s*!important)?;/);
   assert.match(keyword4, /bottom:\s*17%(?:\s*!important)?;/);
   assert.match(keyword4, /right:\s*10%(?:\s*!important)?;/);
-  assert.match(hasTextKeyword, /opacity:\s*0\.42;/);
+  assert.match(hasTextKeyword, /opacity:\s*0\.46;/);
   assert.match(hasTextActiveKeyword, /opacity:\s*1;/);
   assert.match(wxml, /style="\{\{writerStyle\}\}"/);
+  assert.match(wxss, /@keyframes\s+lamp-switch-on/);
+  assert.match(wxss, /@keyframes\s+writing-light-breathe/);
+  assert.match(wxss, /\.has-text \.glow::before\s*\{[\s\S]*animation:\s*writing-light-breathe\s+6200ms\s+ease-in-out\s+infinite;/);
 });
