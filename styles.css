@@ -1,3 +1,13 @@
+@font-face {
+  font-family: "Night UI WenKai";
+  font-style: normal;
+  font-weight: 400;
+  src:
+    local("LXGW WenKai Screen"),
+    url("assets/fonts/lxgw-wenkai-screen-ui.woff2") format("woff2");
+  font-display: swap;
+}
+
 :root {
   color-scheme: dark;
   --night-surface: #05060b;
@@ -21,6 +31,7 @@
   --end-b: 11;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --keyboard-bottom: 0px;
+  --ui-diary-font: "Night UI WenKai", "LXGW WenKai Screen", "Kaiti SC", "STKaiti", "KaiTi", serif;
   --diary-font: "Songti SC", "STSong", "LXGW WenKai Screen", "LXGW WenKai", "Kaiti SC", "STKaiti", "KaiTi", "FangSong", "Noto Serif CJK SC", serif;
 }
 
@@ -267,6 +278,7 @@ textarea {
 
 .nw-textarea::placeholder {
   color: rgba(114, 128, 164, 0.36);
+  font-family: var(--ui-diary-font);
 }
 
 .nw-intro-note {
@@ -277,6 +289,7 @@ textarea {
   z-index: 22;
   margin: 0;
   color: rgba(114, 128, 164, 0.54);
+  font-family: var(--ui-diary-font);
   font-size: 13px;
   letter-spacing: 0.08em;
   line-height: 1.7;
@@ -331,6 +344,7 @@ textarea {
   right: 26px;
   width: max-content;
   color: rgba(125, 137, 174, 0.68);
+  font-family: var(--ui-diary-font);
   font-size: 12px;
   letter-spacing: 0.08em;
   line-height: 1;
@@ -432,7 +446,7 @@ textarea {
 .nw-history-top h2 {
   margin: 0;
   color: rgba(216, 199, 158, 0.84);
-  font-family: "Songti SC", "STSong", Georgia, serif;
+  font-family: var(--ui-diary-font);
   font-size: 14px;
   font-weight: 400;
   letter-spacing: 0.18em;
@@ -557,6 +571,7 @@ textarea {
 
 .nw-history-date {
   color: rgba(125, 137, 174, 0.86);
+  font-family: var(--ui-diary-font);
   font-size: 12px;
   letter-spacing: 0.08em;
 }
@@ -619,6 +634,7 @@ textarea {
   color: rgba(132, 145, 181, 0.78);
   background: transparent;
   cursor: pointer;
+  font-family: var(--ui-diary-font);
   font-size: 12px;
   letter-spacing: 0.08em;
   line-height: 1.6;
@@ -635,6 +651,7 @@ textarea {
 .nw-privacy-note {
   margin: 6px 0 0;
   color: rgba(125, 137, 174, 0.62);
+  font-family: var(--ui-diary-font);
   font-size: 11px;
   letter-spacing: 0.04em;
   line-height: 1.75;
@@ -643,6 +660,7 @@ textarea {
 .nw-history-empty {
   margin: 14px 0 4px;
   color: rgba(125, 137, 174, 0.72);
+  font-family: var(--ui-diary-font);
   font-size: 14px;
   letter-spacing: 0.05em;
   line-height: 1.8;
@@ -655,7 +673,7 @@ textarea {
   left: 0;
   z-index: 30;
   color: rgba(198, 136, 82, 0);
-  font-family: "Songti SC", "STSong", Georgia, serif;
+  font-family: var(--ui-diary-font);
   font-size: 12px;
   letter-spacing: 0.35em;
   line-height: 1;
@@ -683,6 +701,7 @@ textarea {
   background: transparent;
   color: rgba(125, 137, 174, 0.56);
   cursor: pointer;
+  font-family: var(--ui-diary-font);
   font-size: 12px;
   letter-spacing: 0.12em;
   line-height: 1;
@@ -751,6 +770,7 @@ textarea {
 .nw-clear-question {
   margin: 12px 0 16px;
   color: rgba(226, 204, 145, 0.9);
+  font-family: var(--ui-diary-font);
   font-size: 15px;
   letter-spacing: 0.04em;
   line-height: 1.6;
@@ -769,6 +789,7 @@ textarea {
   color: rgba(226, 204, 145, 0.78);
   background: rgba(114, 128, 164, 0.1);
   cursor: pointer;
+  font-family: var(--ui-diary-font);
   font-size: 13px;
   letter-spacing: 0.08em;
   -webkit-tap-highlight-color: transparent;
@@ -792,6 +813,7 @@ textarea {
   left: 0;
   z-index: 35;
   color: rgba(125, 137, 174, 0.74);
+  font-family: var(--ui-diary-font);
   font-size: 12px;
   letter-spacing: 0.12em;
   line-height: 1;

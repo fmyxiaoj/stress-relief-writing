@@ -27,8 +27,8 @@ test("history list and detail are not rendered while hidden", () => {
 test("history assets use the current cache-busting version", () => {
   const html = readFileSync(join(__dirname, "..", "index.html"), "utf8");
 
-  assert.match(html, /styles\.css\?v=20260707-lamp-pop/);
-  assert.match(html, /app\.js\?v=20260707-lamp-pop/);
+  assert.match(html, /styles\.css\?v=20260707-ui-wenkai/);
+  assert.match(html, /app\.js\?v=20260707-ui-wenkai/);
   assert.match(html, /<link rel="icon" href="data:," \/>/);
 });
 
@@ -194,6 +194,31 @@ test("main writing text prioritizes iOS Songti before diary fallbacks", () => {
     css,
     /\.nw-textarea \{[\s\S]*font-family:\s*var\(--diary-font\);[\s\S]*font-weight:\s*400;[\s\S]*line-height:\s*2\.08;[\s\S]*letter-spacing:\s*0\.025em;/
   );
+});
+
+test("ui microcopy uses bundled WenKai while writing text stays lightweight", () => {
+  const css = readFileSync(join(__dirname, "..", "styles.css"), "utf8");
+  const block = (selector) => {
+    const start = css.indexOf(`${selector} {`);
+    assert.notEqual(start, -1, `${selector} should exist`);
+    return css.slice(start, css.indexOf("}", start));
+  };
+
+  assert.match(
+    css,
+    /@font-face\s*\{[\s\S]*font-family:\s*"Night UI WenKai";[\s\S]*url\("assets\/fonts\/lxgw-wenkai-screen-ui\.woff2"\) format\("woff2"\);[\s\S]*font-display:\s*swap;/
+  );
+  assert.match(
+    css,
+    /--ui-diary-font:\s*"Night UI WenKai",\s*"LXGW WenKai Screen",\s*"Kaiti SC",\s*"STKaiti",\s*"KaiTi",\s*serif;/
+  );
+  assert.match(css, /\.nw-textarea::placeholder \{[\s\S]*font-family:\s*var\(--ui-diary-font\);/);
+  assert.match(css, /\.nw-history-top h2 \{[\s\S]*font-family:\s*var\(--ui-diary-font\);/);
+  assert.match(css, /\.nw-goodnight \{[\s\S]*font-family:\s*var\(--ui-diary-font\);/);
+  assert.match(css, /\.nw-clear-action \{[\s\S]*font-family:\s*var\(--ui-diary-font\);/);
+  assert.match(css, /\.nw-save-status \{[\s\S]*font-family:\s*var\(--ui-diary-font\);/);
+  assert.match(block(".nw-textarea"), /font-family:\s*var\(--diary-font\);/);
+  assert.doesNotMatch(block(".nw-textarea"), /font-family:\s*var\(--ui-diary-font\);/);
 });
 
 test("clicked keyword remains active while sibling keywords stay visible", () => {
